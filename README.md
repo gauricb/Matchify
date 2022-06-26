@@ -6,7 +6,7 @@ This app allows users to find potential friends and partners based on their musi
 
 
 ### App Evaluation
-[Evaluation of your app across the following attributes]
+
 - **Category:** Music and Social Networking
 - **Mobile:** This app suitable for mobile use since it allowers to use it by simple gestures.
 - **Story:** Find special connections through music. 
