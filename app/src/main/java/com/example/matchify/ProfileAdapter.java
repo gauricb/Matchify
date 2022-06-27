@@ -1,6 +1,11 @@
 package com.example.matchify;
 
-public class ProfileAdapter {
+import android.view.View;
+import android.view.ViewGroup;
 
+import androidx.annotation.NonNull;
+import androidx.recyclerview.widget.RecyclerView;
+
+public class ProfileAdapter {
 
 }

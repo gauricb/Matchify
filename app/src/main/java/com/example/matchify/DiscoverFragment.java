@@ -1,4 +1,8 @@
 package com.example.matchify;
 
-public class DiscoverFragment {
+import androidx.fragment.app.Fragment;
+
+public class DiscoverFragment extends Fragment {
+
+
 }

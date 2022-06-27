@@ -1,4 +1,6 @@
 package com.example.matchify;
 
-public class MatchesFragment {
+import androidx.fragment.app.Fragment;
+
+public class MatchesFragment extends Fragment {
 }

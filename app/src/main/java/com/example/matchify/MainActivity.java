@@ -1,6 +1,7 @@
 package com.example.matchify;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
@@ -21,12 +22,21 @@ import com.spotify.android.appremote.api.SpotifyAppRemote;
 
 import com.spotify.sdk.android.auth.AuthorizationClient;
 
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import kaaes.spotify.webapi.android.SpotifyApi;
 import kaaes.spotify.webapi.android.SpotifyService;
+import kaaes.spotify.webapi.android.models.Artist;
 import kaaes.spotify.webapi.android.models.Pager;
+import kaaes.spotify.webapi.android.models.Recommendations;
 import kaaes.spotify.webapi.android.models.SavedTrack;
+import kaaes.spotify.webapi.android.models.SeedsGenres;
+import kaaes.spotify.webapi.android.models.Track;
 import kaaes.spotify.webapi.android.models.UserPrivate;
 import retrofit.Callback;
 import retrofit.RetrofitError;
@@ -46,6 +56,7 @@ public class MainActivity extends AppCompatActivity {
     private SpotifyAppRemote mSpotifyAppRemote;
     SpotifyApi api = new SpotifyApi();
     public static SpotifyService spotifyService;
+    CurrentUser user = new CurrentUser();
 
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -60,7 +71,20 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public boolean onNavigationItemSelected(@NonNull MenuItem item) {
                 Fragment fragment = new ProfileFragment();
-                /* TO DO: PUT SWITCH STATEMENTS FOR ALL THE FRAGMENTS HERE ONCE CREATED*/
+                switch (item.getItemId()) {
+                    case R.id.action_discover:
+                        fragment = new DiscoverFragment();
+                        break;
+                    case R.id.action_match:
+                        fragment = new MatchesFragment();
+                        break;
+                    case R.id.action_profile:
+                        fragment = new ProfileFragment();
+                        break;
+                    default:
+                        break;
+                }
+
                 fragmentManager.beginTransaction().replace(R.id.flContainer, fragment).commit();
                 return true;
             }
@@ -104,6 +128,7 @@ public class MainActivity extends AppCompatActivity {
 
         /* WHEN CONNECTED TO THE API, MAKE API CALLS HERE*/
 
+
         spotifyService.getMe(new Callback<UserPrivate>() {
             @Override
             public void success(UserPrivate userPrivate, Response response) {
@@ -122,6 +147,7 @@ public class MainActivity extends AppCompatActivity {
                 Log.d("my saved tracks ", "total number of saved tracks " + savedTrackPager.total);
                 //Log.d(TAG, "full result of the request: " + savedTrackPager.href);
                 List<SavedTrack> items = savedTrackPager.items;
+
                 Log.d(TAG, "the requested content: " + items.get(0).track.name);
             }
 
@@ -130,6 +156,86 @@ public class MainActivity extends AppCompatActivity {
                 Log.d("error getting saved tracks ", error.toString());
             }
         });
+
+        String[] artists = new String[5];
+        spotifyService.getTopArtists(new Callback<Pager<Artist>>() {
+            @Override
+            public void success(Pager<Artist> artistPager, Response response) {
+
+                for (int i = 0; i < 5; i++) {
+                    //Log.d("user's top 5 artists ", artistPager.items.get(i).name);
+                    //artists[i] = artistPager.items.get(i).name;
+                    artists[i] = artistPager.items.get(i).id;
+                }
+                Log.d("user's top 5 artists ", Arrays.toString(artists));
+
+            }
+
+            @Override
+            public void failure(RetrofitError error) {
+                Log.d("error getting top artist ", error.toString());
+            }
+        });
+
+        String[] tracks = new String[5];
+        spotifyService.getTopTracks(new Callback<Pager<Track>>() {
+            @Override
+            public void success(Pager<Track> trackPager, Response response) {
+
+                for (int i = 0; i < 5; i++) {
+                    //Log.d("user's top 5 artists ", artistPager.items.get(i).name);
+                    tracks[i] = trackPager.items.get(i).id;
+                }
+                Log.d("user's top 5 tracks ", Arrays.toString(tracks));
+            }
+
+            @Override
+            public void failure(RetrofitError error) {
+
+            }
+        });
+
+        String[] genres = new String[126];
+        spotifyService.getSeedsGenres(new Callback<SeedsGenres>() {
+            @Override
+            public void success(SeedsGenres seedsGenres, Response response) {
+                for (int i = 0; i < 126; i++) {
+                    //Log.d("user's top 5 artists ", artistPager.items.get(i).name);
+                    genres[i] = seedsGenres.genres.get(i);
+                }
+                Log.d("all the genres ", Arrays.toString(genres));
+
+            }
+
+            @Override
+            public void failure(RetrofitError error) {
+
+            }
+        });
+        String[] fiveGenres = new String[5];
+        Map<String, Object> options = new HashMap<>(5);
+        options.put("seed_genres", "hip hop");
+        options.put("seed_artists", "5GnnSrwNCGyfAU4zuIytiS");
+        options.put("seed_tracks", "2yGk5A4oipC4jvDLIVlQIJ");
+
+
+//        options.put("seed_tracks", Arrays.toString(tracks));
+
+        spotifyService.getRecommendations(options, new Callback<Recommendations>() {
+            @Override
+            public void success(Recommendations recommendations, Response response) {
+                Log.d("recommended tracks: ", recommendations.tracks.get(0).name);
+            }
+
+            @Override
+            public void failure(RetrofitError error) {
+                Log.d("cannot produce recommendations", error.toString());
+            }
+        });
+
+
+
+
 
     }
 
