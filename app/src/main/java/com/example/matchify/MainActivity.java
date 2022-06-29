@@ -167,7 +167,7 @@ public class MainActivity extends AppCompatActivity {
                     //artists[i] = artistPager.items.get(i).name;
                     artists[i] = artistPager.items.get(i).id;
                 }
-                Log.d("user's top 5 artists ", Arrays.toString(artists));
+                //Log.d("user's top 5 artists ", Arrays.toString(artists));
 
             }
 
@@ -176,6 +176,7 @@ public class MainActivity extends AppCompatActivity {
                 Log.d("error getting top artist ", error.toString());
             }
         });
+        Log.d("user's top 5 artists ", Arrays.toString(artists));
 
         String[] tracks = new String[5];
         spotifyService.getTopTracks(new Callback<Pager<Track>>() {

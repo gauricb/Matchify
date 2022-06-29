@@ -28,18 +28,8 @@ import retrofit.client.Response;
 public class ProfileFragment extends Fragment {
 
     public static final String TAG = "Profile Fragment";
-
-    private TextView username;
-    private ImageView userProfilePic;
-    private View divider;
-
-    public CurrentUser user = new CurrentUser();
-    Context context;
-
     //store the binding
     private FragmentProfileBinding binding;
-
-
 
     public ProfileFragment() {
 
@@ -48,7 +38,7 @@ public class ProfileFragment extends Fragment {
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        //return inflater.inflate(R.layout.fragment_profile, container, false);
+
         binding = FragmentProfileBinding.inflate(inflater,container, false);
 
         //set the username
