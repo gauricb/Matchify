@@ -28,8 +28,6 @@ import retrofit.client.Response;
 public class ProfileFragment extends Fragment {
 
     public static final String TAG = "Profile Fragment";
-    //store the binding
-    private FragmentProfileBinding binding;
 
     public ProfileFragment() {
 
@@ -39,7 +37,7 @@ public class ProfileFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 
-        binding = FragmentProfileBinding.inflate(inflater,container, false);
+        FragmentProfileBinding binding = DataBindingUtil.inflate(inflater,R.layout.fragment_profile, container, false);
 
         //set the username
         spotifyService.getMe(new Callback<UserPrivate>() {

@@ -65,5 +65,11 @@ dependencies {
     implementation "com.yuyakaido.android:card-stack-view:2.3.4"
     implementation 'com.github.Yalantis:Koloda-Android:v0.0.2-alpha'
 
+    implementation 'com.github.parse-community.Parse-SDK-Android:parse:1.24.1'
+    implementation 'com.squareup.okhttp3:logging-interceptor:3.8.1'
+
+    implementation 'com.github.parse-community:ParseLiveQuery-Android:1.1.0'
+
+
 
 }

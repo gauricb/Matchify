@@ -49,14 +49,14 @@ public class MainActivity extends AppCompatActivity {
     public String AUTH_TOKEN;
 
     public static final String TAG = "MainActivity";
+    private final int REQUEST_CODE = 22;
 
     final FragmentManager fragmentManager = getSupportFragmentManager();
     private BottomNavigationView bottomNavigationView;
 
     private SpotifyAppRemote mSpotifyAppRemote;
-    SpotifyApi api = new SpotifyApi();
     public static SpotifyService spotifyService;
-    CurrentUser user = new CurrentUser();
+
 
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -201,7 +201,6 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void success(SeedsGenres seedsGenres, Response response) {
                 for (int i = 0; i < 126; i++) {
-                    //Log.d("user's top 5 artists ", artistPager.items.get(i).name);
                     genres[i] = seedsGenres.genres.get(i);
                 }
                 Log.d("all the genres ", Arrays.toString(genres));
@@ -213,26 +212,7 @@ public class MainActivity extends AppCompatActivity {
 
             }
         });
-        String[] fiveGenres = new String[5];
-        Map<String, Object> options = new HashMap<>(5);
-        options.put("seed_genres", "hip hop");
-        options.put("seed_artists", "5GnnSrwNCGyfAU4zuIytiS");
-        options.put("seed_tracks", "2yGk5A4oipC4jvDLIVlQIJ");
 
-
-//        options.put("seed_tracks", Arrays.toString(tracks));
-
-        spotifyService.getRecommendations(options, new Callback<Recommendations>() {
-            @Override
-            public void success(Recommendations recommendations, Response response) {
-                Log.d("recommended tracks: ", recommendations.tracks.get(0).name);
-            }
-
-            @Override
-            public void failure(RetrofitError error) {
-                Log.d("cannot produce recommendations", error.toString());
-            }
-        });
 
 
 
@@ -254,6 +234,13 @@ public class MainActivity extends AppCompatActivity {
             onLogOutButton();
             finish();
         }
+        if (item.getItemId() == R.id.chatButton) {
+            Toast.makeText(MainActivity.this, "chat selected!", Toast.LENGTH_SHORT).show();
+            Intent intent = new Intent(this, ChatActivity.class);
+            startActivityForResult(intent, REQUEST_CODE);
+
+        }
+
         return super.onOptionsItemSelected(item);
     }
 

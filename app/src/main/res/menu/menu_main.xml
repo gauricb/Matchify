@@ -3,6 +3,10 @@
     xmlns:android="http://schemas.android.com/apk/res/android">
 
     <item
+        android:id="@+id/chatButton"
+        android:title="CHAT"
+        app:showAsAction="always" />
+    <item
         android:id="@+id/buttonLogout"
         android:icon="@drawable/icon_exit_app"
         android:title="LOGOUT"
