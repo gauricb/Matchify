@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- res/layout/message_outgoing.xml -->
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:clipToPadding="false"
+    android:paddingVertical="10dp"
+    android:paddingLeft="60dp"
+    android:paddingRight="15dp">
+
+    <TextView
+        android:id="@+id/tvBody"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginRight="8dp"
+        android:layout_toLeftOf="@+id/ivProfileMe"
+        android:background="@drawable/message_outgoing"
+        android:elevation="2dp"
+        android:padding="8dp"
+        android:text="Your outgoing message here"
+        android:textColor="@android:color/white"
+        android:textSize="18dp" />
+
+    <ImageView
+        android:id="@+id/ivProfileMe"
+        android:layout_width="64dp"
+        android:layout_height="64dp"
+        android:layout_alignParentRight="true"
+        android:contentDescription="@string/profile_me"
+        android:src="@mipmap/ic_launcher" />
+
+</RelativeLayout>
