@@ -1,4 +1,4 @@
-# MusicMatch (temporary)
+# Matchify
 
 ## Overview
 ### Description
