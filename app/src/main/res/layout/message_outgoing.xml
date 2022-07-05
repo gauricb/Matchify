@@ -9,7 +9,7 @@
     android:paddingRight="15dp">
 
     <TextView
-        android:id="@+id/tvBody"
+        android:id="@+id/likedArtistName"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginRight="8dp"

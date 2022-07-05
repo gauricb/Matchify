@@ -28,7 +28,7 @@
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:id="@+id/tvBody"
+        android:id="@+id/likedArtistName"
         android:layout_below="@+id/tvName"
         android:layout_alignLeft="@+id/tvName"
         android:background="@drawable/message_incoming"

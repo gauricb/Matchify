@@ -70,7 +70,7 @@ public class MainActivity extends AppCompatActivity {
         bottomNavigationView.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {
             @Override
             public boolean onNavigationItemSelected(@NonNull MenuItem item) {
-                Fragment fragment = new ProfileFragment();
+                Fragment fragment = new DiscoverFragment();
                 switch (item.getItemId()) {
                     case R.id.action_discover:
                         fragment = new DiscoverFragment();

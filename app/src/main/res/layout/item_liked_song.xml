@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="400dp"
+    android:layout_height="100dp"
+    android:layout_margin="5dp">
+
+    <ImageView
+        android:id="@+id/likedAlbumCover"
+        android:layout_width="83dp"
+        android:layout_height="match_parent"
+        android:contentDescription="TODO"
+        tools:srcCompat="@drawable/tame_impala" />
+
+    <TextView
+        android:id="@+id/likedTrackName"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:layout_marginStart="25dp"
+        android:layout_marginTop="20dp"
+        android:layout_toEndOf="@+id/likedAlbumCover"
+        android:fontFamily="@font/alata"
+        android:text="@string/textview"
+        android:textColor="#E6DFDF"
+        android:textSize="16sp"
+        tools:text="Is It True" />
+
+    <TextView
+        android:id="@+id/likedArtistName"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_marginStart="21dp"
+        android:layout_marginBottom="16dp"
+        android:layout_toEndOf="@+id/likedAlbumCover"
+        android:fontFamily="@font/alata"
+        android:text="TextView"
+        android:textColor="#E6DFDF"
+        android:textSize="16sp"
+        tools:text="Tame Impala" />
+
+</RelativeLayout>

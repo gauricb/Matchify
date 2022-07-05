@@ -7,5 +7,6 @@
     <string name="send">Send</string>
     <string name="profile_me">My Profile Pic</string>
     <string name="profile_other">Other profile pic</string>
+    <string name="textview">TextView</string>
 
 </resources>

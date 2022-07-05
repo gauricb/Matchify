@@ -103,7 +103,7 @@ public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.MessageViewHol
         public IncomingMessageViewHolder(View itemView) {
             super(itemView);
             imageOther = (ImageView)itemView.findViewById(R.id.ivProfileOther);
-            body = (TextView)itemView.findViewById(R.id.tvBody);
+            body = (TextView)itemView.findViewById(R.id.likedArtistName);
             name = (TextView)itemView.findViewById(R.id.tvName);
         }
 
@@ -125,7 +125,7 @@ public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.MessageViewHol
         public OutgoingMessageViewHolder(View itemView) {
             super(itemView);
             imageMe = (ImageView)itemView.findViewById(R.id.ivProfileMe);
-            body = (TextView)itemView.findViewById(R.id.tvBody);
+            body = (TextView)itemView.findViewById(R.id.likedArtistName);
         }
 
         @Override
