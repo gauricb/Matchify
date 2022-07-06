@@ -2,19 +2,24 @@ package com.example.matchify;
 
 import android.app.Application;
 
+import com.example.matchify.models.Message;
+import com.example.matchify.models.Song;
+import com.example.matchify.models.SpotifyUser;
 import com.parse.Parse;
 import com.parse.ParseObject;
 
 import okhttp3.OkHttpClient;
 import okhttp3.logging.HttpLoggingInterceptor;
 
-public class ChatApplication extends Application {
+public class ParseApplication extends Application {
 
     @Override
     public void onCreate() {
         super.onCreate();
 
         ParseObject.registerSubclass(Message.class);
+        ParseObject.registerSubclass(SpotifyUser.class);
+        ParseObject.registerSubclass(Song.class);
         // Use for monitoring Parse network traffic
         OkHttpClient.Builder builder = new OkHttpClient.Builder();
         HttpLoggingInterceptor httpLoggingInterceptor = new HttpLoggingInterceptor();

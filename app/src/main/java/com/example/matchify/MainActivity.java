@@ -1,7 +1,6 @@
 package com.example.matchify;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
@@ -11,11 +10,15 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
-import android.widget.Button;
 import android.widget.Toast;
 
+import com.example.matchify.fragments.DiscoverFragment;
+import com.example.matchify.fragments.MatchesFragment;
+import com.example.matchify.fragments.ProfileFragment;
+import com.example.matchify.models.SpotifyUser;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
+import com.parse.ParseException;
+import com.parse.SaveCallback;
 import com.spotify.android.appremote.api.ConnectionParams;
 import com.spotify.android.appremote.api.Connector;
 import com.spotify.android.appremote.api.SpotifyAppRemote;
@@ -23,17 +26,12 @@ import com.spotify.android.appremote.api.SpotifyAppRemote;
 import com.spotify.sdk.android.auth.AuthorizationClient;
 
 import java.util.Arrays;
-import java.util.Collection;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
 import kaaes.spotify.webapi.android.SpotifyApi;
 import kaaes.spotify.webapi.android.SpotifyService;
 import kaaes.spotify.webapi.android.models.Artist;
 import kaaes.spotify.webapi.android.models.Pager;
-import kaaes.spotify.webapi.android.models.Recommendations;
 import kaaes.spotify.webapi.android.models.SavedTrack;
 import kaaes.spotify.webapi.android.models.SeedsGenres;
 import kaaes.spotify.webapi.android.models.Track;
@@ -63,6 +61,7 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         AUTH_TOKEN = getIntent().getStringExtra(LoginActivity.AUTH_TOKEN);
+
         setServiceApi();
 
         bottomNavigationView = findViewById(R.id.bottomNavigation);
@@ -126,13 +125,20 @@ public class MainActivity extends AppCompatActivity {
 
     private void connected() {
 
-        /* WHEN CONNECTED TO THE API, MAKE API CALLS HERE*/
-
+        /* WHEN CONNECTED TO THE API, MAKE API CALLS AND STORE TO DATABASE HERE*/
+        SpotifyUser user = new SpotifyUser();
 
         spotifyService.getMe(new Callback<UserPrivate>() {
             @Override
             public void success(UserPrivate userPrivate, Response response) {
-                Log.d("User success ", userPrivate.display_name);
+                user.setUserDisplayName(userPrivate.display_name);
+                user.setUserSpotId(userPrivate.id);
+                user.saveInBackground(new SaveCallback() {
+                    @Override
+                    public void done(ParseException e) {
+
+                    }
+                });
             }
 
             @Override

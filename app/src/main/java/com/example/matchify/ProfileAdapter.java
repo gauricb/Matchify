@@ -11,6 +11,7 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
+import com.example.matchify.models.Song;
 
 import java.util.List;
 
@@ -18,6 +19,7 @@ public class ProfileAdapter extends RecyclerView.Adapter<ProfileAdapter.ViewHold
 
     private Context context;
     private List<Song> likedSongs;
+
     public static final String TAG = "ProfileAdapter";
 
     public ProfileAdapter(Context context, List<Song> likedSongs) {
@@ -59,9 +61,9 @@ public class ProfileAdapter extends RecyclerView.Adapter<ProfileAdapter.ViewHold
         }
 
         public void bind(Song song) {
-            trackName.setText(song.getSongName());
-            artistName.setText(song.getArtistName());
-            Glide.with(context).load(song.albumCoverUrl).into(albumCover);
+            trackName.setText(song.getParseSongName());
+            artistName.setText(song.getParseArtistName());
+            Glide.with(context).load(song.getParseAlbumCover()).into(albumCover);
         }
 
         @Override

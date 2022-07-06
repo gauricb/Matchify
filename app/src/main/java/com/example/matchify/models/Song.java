@@ -1,19 +1,43 @@
-package com.example.matchify;
+package com.example.matchify.models;
 
 import android.os.Parcelable;
 
-import org.parceler.Parcel;
+import com.parse.ParseClassName;
+import com.parse.ParseObject;
 
-@Parcel
-public class Song implements Parcelable {
+@ParseClassName("LikedSong")
+
+public class Song extends ParseObject implements Parcelable {
 
     public String songName;
     public String artistName;
     public String albumCoverUrl;
 
-    public Song() {
+    public static final String SONG_NAME = "songName";
+    public static final String ARTIST_NAME = "artistName";
+    public static final String ALBUM_COVER = "albumCover";
 
+    // getters and setters for parse
+    public void setSongName(String songName) {
+        put(SONG_NAME, songName);
     }
+    public void setArtistName(String artistName) {
+        put(ARTIST_NAME, artistName);
+    }
+    public void setAlbumCover(String albumCover) {
+        put(ALBUM_COVER, albumCover);
+    }
+    public String getParseSongName() {
+        return getString(SONG_NAME);
+    }
+    public String getParseArtistName() {
+        return getString(ARTIST_NAME);
+    }
+    public String getParseAlbumCover() {
+        return getString(ALBUM_COVER);
+    }
+
+    public Song(){}
 
     public Song (String songName, String artistName, String albumCoverUrl) {
         this.songName = songName;
@@ -21,6 +45,7 @@ public class Song implements Parcelable {
         this.albumCoverUrl = albumCoverUrl;
     }
 
+    // for Parcelable
     protected Song(android.os.Parcel in) {
         songName = in.readString();
         artistName = in.readString();
@@ -43,14 +68,13 @@ public class Song implements Parcelable {
         return songName;
      }
 
-     public String getArtistName() {
+    public String getArtistName() {
         return artistName;
     }
 
-     public String getAlbumCoverUrl() {
+    public String getAlbumCoverUrl() {
         return albumCoverUrl;
      }
-
 
     @Override
     public int describeContents() {
@@ -63,4 +87,5 @@ public class Song implements Parcelable {
         dest.writeString(artistName);
         dest.writeString(albumCoverUrl);
     }
+
 }

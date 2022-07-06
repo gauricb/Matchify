@@ -1,35 +1,33 @@
-package com.example.matchify;
+package com.example.matchify.fragments;
 
 import static com.example.matchify.MainActivity.spotifyService;
 
-import android.content.Context;
 import android.os.Bundle;
-import android.os.Parcel;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
-import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.databinding.DataBindingUtil;
 import androidx.fragment.app.Fragment;
-import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
+import com.example.matchify.ProfileAdapter;
+import com.example.matchify.R;
+import com.example.matchify.models.Song;
+import com.example.matchify.models.SpotifyUser;
 import com.example.matchify.databinding.FragmentProfileBinding;
-
-import org.parceler.Parcels;
+import com.parse.FindCallback;
+import com.parse.ParseException;
+import com.parse.ParseQuery;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import kaaes.spotify.webapi.android.models.Pager;
-import kaaes.spotify.webapi.android.models.SavedTrack;
 import kaaes.spotify.webapi.android.models.UserPrivate;
 import retrofit.Callback;
 import retrofit.RetrofitError;
@@ -49,16 +47,21 @@ public class ProfileFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 
-        FragmentProfileBinding binding = DataBindingUtil.inflate(inflater,R.layout.fragment_profile, container, false);
+        FragmentProfileBinding binding = DataBindingUtil.inflate(inflater, R.layout.fragment_profile, container, false);
 
-        //set the username
-        spotifyService.getMe(new Callback<UserPrivate>() {
+        //TODO GET USERNAME AND PROFILE PIC FROM PARSE DATABASE INSTEAD OF MAKING ASYNC API CALLS
+        ParseQuery<SpotifyUser> query = ParseQuery.getQuery(SpotifyUser.class);
+
+        query.findInBackground(new FindCallback<SpotifyUser>() {
             @Override
-            public void success(UserPrivate userPrivate, Response response) {
-                binding.textViewUsername.setText(userPrivate.display_name);
+            public void done(List<SpotifyUser> objects, ParseException e) {
+                if (e != null) {
+                    Log.e(TAG, "Issue with getting user details", e);
+                    return;
+                }
+                binding.textViewUsername.setText(objects.get(0).getUserDisplayName());
+
             }
-            @Override
-            public void failure(RetrofitError error) {}
         });
 
         spotifyService.getMe(new Callback<UserPrivate>() {
@@ -70,9 +73,6 @@ public class ProfileFragment extends Fragment {
             public void failure(RetrofitError error) {
             }
         });
-
-
-
 
 
         return binding.getRoot();
@@ -88,35 +88,23 @@ public class ProfileFragment extends Fragment {
         adapter = new ProfileAdapter(getContext(), likedSongs);
         rvLikedSongs.setLayoutManager(new LinearLayoutManager(getContext()));
         rvLikedSongs.setAdapter(adapter);
-        //test if the recycler view is working
 
-//        spotifyService.getMySavedTracks(new Callback<Pager<SavedTrack>>() {
-//            @Override
-//            public void success(Pager<SavedTrack> savedTrackPager, Response response) {
-//                for (int i = 0; i < savedTrackPager.items.size(); i++) {
-//                    likedSongs.add(new Song(savedTrackPager.items.get(i).track.name, savedTrackPager.items.get(i).track.artists.get(0).name,
-//                            savedTrackPager.items.get(i).track.album.images.get(0).url));
-//
-//                }
-//                adapter.notifyDataSetChanged();
-//            }
-//
-//            @Override
-//            public void failure(RetrofitError error) {
-//
-//            }
-//        });
+        ParseQuery<Song> query = ParseQuery.getQuery(Song.class);
+        query.addDescendingOrder("createdAt");
+        query.findInBackground(new FindCallback<Song>() {
+            @Override
+            public void done(List<Song> objects, ParseException e) {
+                if (e != null) {
+                    Log.e(TAG, "Issue with getting liked songs", e);
+                    return;
+                }
+                likedSongs.addAll(objects);
+                adapter.notifyDataSetChanged();
 
-        Bundle bundle = this.getArguments();
+            }
+        });
 
-        if (bundle != null) {
-            Song receivedSong = bundle.getParcelable("likedSongObject");
-            likedSongs.add(new Song(receivedSong.getSongName(), receivedSong.getArtistName(), receivedSong.albumCoverUrl));
 
-            //Log.d("this was received: ", likedSongs.get(0).getSongName());
-
-        }
-        adapter.notifyDataSetChanged();
 
     }
 }

@@ -1,4 +1,4 @@
-package com.example.matchify;
+package com.example.matchify.models;
 
 import com.parse.ParseClassName;
 import com.parse.ParseObject;

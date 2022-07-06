@@ -1,4 +1,4 @@
-package com.example.matchify;
+package com.example.matchify.fragments;
 
 import androidx.fragment.app.Fragment;
 

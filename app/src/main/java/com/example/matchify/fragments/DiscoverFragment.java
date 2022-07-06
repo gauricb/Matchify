@@ -1,10 +1,8 @@
-package com.example.matchify;
+package com.example.matchify.fragments;
 
 import static com.example.matchify.MainActivity.spotifyService;
 
-import android.content.Intent;
 import android.os.Bundle;
-import android.os.Parcelable;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -14,20 +12,19 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentTransaction;
 
+import com.example.matchify.R;
+import com.example.matchify.models.Song;
+import com.example.matchify.SongCardsAdapter;
+import com.parse.ParseException;
+import com.parse.SaveCallback;
 import com.yalantis.library.Koloda;
 import com.yalantis.library.KolodaListener;
 
-import org.parceler.Parcels;
-
-import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 
 import kaaes.spotify.webapi.android.models.Recommendations;
 import retrofit.Callback;
@@ -103,15 +100,17 @@ public class DiscoverFragment extends Fragment {
                         likedSongs.add(songs.get(i+1));
                         Log.d("this was added: ", likedSongs.get(likedSongs.size()-1).getSongName());
 
-                        //TODO SEND EACH LIKED SONG TO PROFILE FRAGMENT
-                        FragmentTransaction transaction = getFragmentManager().beginTransaction();
-                        ProfileFragment profileFragment = new ProfileFragment();
+                        Song likedSong = new Song();
+                        likedSong.setSongName(likedSongs.get(likedSongs.size()-1).getSongName());
+                        likedSong.setArtistName(likedSongs.get(likedSongs.size()-1).getArtistName());
+                        likedSong.setAlbumCover(likedSongs.get(likedSongs.size()-1).getAlbumCoverUrl());
+                        likedSong.saveInBackground(new SaveCallback() {
+                            @Override
+                            public void done(ParseException e) {
+                                Log.d("liked song saved! ", "mememe");
+                            }
+                        });
 
-                        // using bundle to pass this liked song
-                        Bundle bundle = new Bundle();
-                        bundle.putParcelable("likedSongObject", likedSongs.get(likedSongs.size()-1));
-                        profileFragment.setArguments(bundle);
-                        transaction.commit();
                     }
                     @Override
                     public void onClickRight(int i) {
@@ -145,11 +144,7 @@ public class DiscoverFragment extends Fragment {
 
                 };
 
-
                 koloda.setKolodaListener(kolodaListener);
-
-
-
 
             }
 

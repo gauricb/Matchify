@@ -11,11 +11,11 @@ import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.Toast;
 
+import com.example.matchify.models.Message;
 import com.parse.FindCallback;
 import com.parse.LogInCallback;
 import com.parse.ParseAnonymousUtils;
 import com.parse.ParseException;
-import com.parse.ParseObject;
 import com.parse.ParseQuery;
 import com.parse.ParseUser;
 import com.parse.SaveCallback;
@@ -48,7 +48,8 @@ public class ChatActivity extends AppCompatActivity {
         // User login
         if (ParseUser.getCurrentUser() != null) { // start with existing user
             startWithCurrentUser();
-        } else { // If not logged in, login as a new anonymous user
+        }
+        else { // If not logged in, login as a new anonymous user
             login();
         }
 
