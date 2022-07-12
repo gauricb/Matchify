@@ -16,7 +16,9 @@ import androidx.fragment.app.Fragment;
 import com.example.matchify.R;
 import com.example.matchify.models.Song;
 import com.example.matchify.SongCardsAdapter;
+import com.example.matchify.models.SpotifyUser;
 import com.parse.ParseException;
+import com.parse.ParseQuery;
 import com.parse.ParseUser;
 import com.parse.SaveCallback;
 import com.yalantis.library.Koloda;
@@ -64,12 +66,14 @@ public class DiscoverFragment extends Fragment {
 
     private void generateRecommendations() {
         //sets up the parameters for the recommendations function
-        Map<String, Object> options = new HashMap<>(5);
-        options.put("seed_genres", "hip-hop");
+//        Map<String, Object> options = new HashMap<>(5);
+//        options.put("seed_genres", "hip-hop");
+        // TODO ASK USER FOR GENRES HERE
+
         // options.put("seed_artists", "5GnnSrwNCGyfAU4zuIytiS");
         // options.put("seed_tracks", "2yGk5A4oipC4jvDLIVlQIJ");
 
-        spotifyService.getRecommendations(options, new Callback<Recommendations>() {
+        spotifyService.getRecommendations(getGenres(), new Callback<Recommendations>() {
             @Override
             public void success(Recommendations recommendations, Response response) {
                 for (int i = 0; i < recommendations.tracks.size(); i++) {
@@ -100,7 +104,13 @@ public class DiscoverFragment extends Fragment {
                     @Override
                     public void onCardSwipedRight(int i) {
 
-                        saveLikedSong(i);
+
+                        try {
+                            saveLikedSong(i);
+                        } catch (ParseException e) {
+                            e.printStackTrace();
+                        }
+
 
                     }
                     @Override
@@ -147,14 +157,15 @@ public class DiscoverFragment extends Fragment {
 
     }
 
-    private void saveLikedSong(int i) {
+    private void saveLikedSong(int i) throws ParseException {
         likedSongs.add(songs.get(i+1));
         Song likedSong = new Song();
+
         likedSong.setSongName(likedSongs.get(likedSongs.size()-1).getSongName());
         likedSong.setArtistName(likedSongs.get(likedSongs.size()-1).getArtistName());
         likedSong.setAlbumCover(likedSongs.get(likedSongs.size()-1).getAlbumCoverUrl());
-        //String currentUsername = ParseUser.getCurrentUser().getUsername();
         likedSong.setSongUser(ParseUser.getCurrentUser());
+
 
         likedSong.saveInBackground(new SaveCallback() {
             @Override
@@ -162,6 +173,12 @@ public class DiscoverFragment extends Fragment {
                 Log.d("liked song saved! ", "mememe");
             }
         });
+    }
+
+    public Map<String, Object> getGenres() {
+        Map<String, Object> options = new HashMap<>(5);
+        options.put("seed_genres", "hip-hop");
+        return options;
     }
 
 }

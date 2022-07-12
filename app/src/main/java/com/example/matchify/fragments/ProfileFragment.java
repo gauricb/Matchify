@@ -25,6 +25,7 @@ import com.parse.FindCallback;
 import com.parse.ParseException;
 import com.parse.ParseQuery;
 import com.parse.ParseUser;
+import com.parse.SaveCallback;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -72,6 +73,8 @@ public class ProfileFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
         rvLikedSongs = view.findViewById(R.id.rvLikedSongs);
 
+
+
         likedSongs = new ArrayList<>();
         adapter = new ProfileAdapter(getContext(), likedSongs);
         rvLikedSongs.setLayoutManager(new LinearLayoutManager(getContext()));
@@ -81,6 +84,19 @@ public class ProfileFragment extends Fragment {
         query.whereEqualTo("songUser", ParseUser.getCurrentUser());
         query.setLimit(20);
         query.addDescendingOrder("createdAt");
+
+        ParseQuery<SpotifyUser> spotifyUserParseQuery = ParseQuery.getQuery("SpotifyUser");
+        List<SpotifyUser> currentUser = new ArrayList<>();
+        spotifyUserParseQuery.whereEqualTo("songUser", ParseUser.getCurrentUser());
+        try {
+            currentUser = spotifyUserParseQuery.find();
+            Log.e(TAG, "!!!!"+currentUser.size());
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+
+
+        List<SpotifyUser> finalCurrentUser = currentUser;
         query.findInBackground(new FindCallback<Song>() {
             @Override
             public void done(List<Song> objects, ParseException e) {
@@ -88,7 +104,23 @@ public class ProfileFragment extends Fragment {
                     Log.e(TAG, "Issue with getting liked songs", e);
                     return;
                 }
+
+
                 likedSongs.addAll(objects);
+                //add these songs to likedSongs field in current user SpotifyUser
+                String[] userLikedSongs = new String[likedSongs.size()];
+                for (int i = 0; i < userLikedSongs.length; i++) {
+                    userLikedSongs[i] = likedSongs.get(i).getParseSongName();
+                }
+                finalCurrentUser.get(0).setLikedSongs(userLikedSongs);
+                finalCurrentUser.get(0).saveInBackground(new SaveCallback() {
+                    @Override
+                    public void done(ParseException e) {
+                        Log.d("liked song saved! ", "******");
+                    }
+                });
+
+
                 adapter.notifyDataSetChanged();
 
             }
@@ -97,4 +129,6 @@ public class ProfileFragment extends Fragment {
 
 
     }
+
+
 }

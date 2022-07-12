@@ -29,7 +29,7 @@ public class LoginActivity extends AppCompatActivity {
     private static final String CLIENT_ID = "33a4d498feb4475c902c47154d370dc2";
     public static final String AUTH_TOKEN = "AUTH_TOKEN";
     public static int LOG_IN_SELECTED = 0;
-    public static int SIGN_UP_SELECTED = 1;
+    public static int SIGN_UP_SELECTED = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

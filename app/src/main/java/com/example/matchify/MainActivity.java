@@ -5,11 +5,20 @@ import static com.example.matchify.LoginActivity.SIGN_UP_SELECTED;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 
+import android.Manifest;
+import android.annotation.SuppressLint;
+import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.location.Location;
+import android.location.LocationManager;
 import android.os.Bundle;
+import android.os.Looper;
+import android.provider.Settings;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -20,6 +29,13 @@ import com.example.matchify.fragments.MatchesFragment;
 import com.example.matchify.fragments.ProfileFragment;
 import com.example.matchify.models.Song;
 import com.example.matchify.models.SpotifyUser;
+import com.google.android.gms.location.FusedLocationProviderClient;
+import com.google.android.gms.location.LocationCallback;
+import com.google.android.gms.location.LocationRequest;
+import com.google.android.gms.location.LocationResult;
+import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.parse.FindCallback;
 import com.parse.GetCallback;
@@ -69,6 +85,10 @@ public class MainActivity extends AppCompatActivity {
     private SpotifyAppRemote mSpotifyAppRemote;
     public static SpotifyService spotifyService;
 
+    // for user location
+    FusedLocationProviderClient fusedLocationProviderClient;
+    int LOCATION_PERMISSION_ID = 44;
+
 
     protected void onCreate(Bundle savedInstanceState) {
 
@@ -78,6 +98,9 @@ public class MainActivity extends AppCompatActivity {
         AUTH_TOKEN = getIntent().getStringExtra(LoginActivity.AUTH_TOKEN);
 
         setServiceApi();
+
+        fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this);
+        getLastLocation();
 
         bottomNavigationView = findViewById(R.id.bottomNavigation);
 
@@ -105,6 +128,7 @@ public class MainActivity extends AppCompatActivity {
         });
         bottomNavigationView.setSelectedItemId(R.id.action_profile);
     }
+
 
     @Override
     protected void onStart() {
@@ -160,14 +184,13 @@ public class MainActivity extends AppCompatActivity {
                 }
             });
 
-        }
-        else if (SIGN_UP_SELECTED == 1) {
+        } else if (SIGN_UP_SELECTED == 1) {
             signUpUser();
         }
 
 
-
     }
+
     public boolean userExists(SpotifyUser user, String userID) {
         return true;
     }
@@ -226,6 +249,7 @@ public class MainActivity extends AppCompatActivity {
             }
         });
     }
+
     private void signUpUser() {
 
         spotifyService.getMe(new Callback<UserPrivate>() {
@@ -256,6 +280,7 @@ public class MainActivity extends AppCompatActivity {
                         });
 
                     }
+
                     @Override
                     public void failure(RetrofitError error) {
                         Log.e(TAG, error.toString());
@@ -294,20 +319,19 @@ public class MainActivity extends AppCompatActivity {
                                 public void done(ParseException e) {
                                     if (e == null) {
                                         Log.d(TAG, "user details saved");
+                                    } else {
+                                        Log.e(TAG, "error saving user details" + e.toString());
                                     }
-                                    else {Log.e(TAG, "error saving user details" + e.toString());}
                                 }
                             });
                             login(username, USER_PASSWORD);
-                        }
-                        else {
+                        } else {
                             // Sign up didn't succeed. Look at the ParseException
                             // to figure out what went wrong
                             Log.e(TAG, "Sign up Error. Username: " + username + " Password: " + USER_PASSWORD, e);
                         }
                     }
                 });
-
 
 
             }
@@ -319,8 +343,107 @@ public class MainActivity extends AppCompatActivity {
         });
 
 
-
     }
+
+    // get users current location
+    @SuppressLint("MissingPermission")
+    private void getLastLocation() {
+        if (checkPermissions()) {
+            if (isLocationEnabled()) {
+                fusedLocationProviderClient.getLastLocation().addOnCompleteListener(new OnCompleteListener<Location>() {
+                    @Override
+                    public void onComplete(@NonNull Task<Location> task) {
+                        Location location = task.getResult();
+                        if (location == null) {
+                            requestNewLocationData();
+                        } else {
+                            //store to current users location field
+
+                            Log.e(TAG, "LATITUDE " + location.getLatitude());
+                            Log.e(TAG, "LONGITUDE " + location.getLongitude());
+
+                        }
+                    }
+                });
+
+            } else {
+                Toast.makeText(this, "Please turn on" + " your location...", Toast.LENGTH_LONG).show();
+                Intent intent = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
+                startActivity(intent);
+            }
+        } else {
+            // if permissions aren't available,
+            // request for permissions
+            requestPermissions();
+        }
+    }
+
+    @SuppressLint("MissingPermission")
+    private void requestNewLocationData() {
+
+        // Initializing LocationRequest
+        // object with appropriate methods
+        LocationRequest mLocationRequest = new LocationRequest();
+        mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
+        mLocationRequest.setInterval(5);
+        mLocationRequest.setFastestInterval(0);
+        mLocationRequest.setNumUpdates(1);
+
+        // setting LocationRequest
+        // on FusedLocationClient
+        fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this);
+        fusedLocationProviderClient.requestLocationUpdates(mLocationRequest, mLocationCallback, Looper.myLooper());
+    }
+
+    private LocationCallback mLocationCallback = new LocationCallback() {
+
+        @Override
+        public void onLocationResult(LocationResult locationResult) {
+            Location mLastLocation = locationResult.getLastLocation();
+
+            Log.d(TAG, "LATITUDE " + mLastLocation.getLatitude());
+            Log.d(TAG, "LONGITUDE " + mLastLocation.getLongitude());
+        }
+    };
+
+    // method to check for permissions
+    private boolean checkPermissions() {
+        return ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED;
+    }
+
+    // method to request for permissions
+    private void requestPermissions() {
+        ActivityCompat.requestPermissions(this, new String[]{
+                Manifest.permission.ACCESS_COARSE_LOCATION,
+                Manifest.permission.ACCESS_FINE_LOCATION}, LOCATION_PERMISSION_ID);
+    }
+
+
+    private boolean isLocationEnabled() {
+        LocationManager locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+        return locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER) || locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER);
+    }
+
+    // If everything is alright then
+    @Override
+    public void
+    onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if (requestCode == LOCATION_PERMISSION_ID) {
+            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                getLastLocation();
+            }
+        }
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        if (checkPermissions()) {
+            getLastLocation();
+        }
+    }
+
 
 
 }

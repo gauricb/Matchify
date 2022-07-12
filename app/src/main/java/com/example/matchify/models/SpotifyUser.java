@@ -30,6 +30,7 @@ public class SpotifyUser extends ParseObject {
     public static final String CURRENT_USER = "songUser";
     public static final String TOP_TRACKS = "topTracks";
     public static final String TOP_ARTISTS = "topArtists";
+    public static final String LIKED_SONGS = "likedSongs";
 
     public String getUserName() {
         return getString(USER_NAME);
@@ -58,6 +59,11 @@ public class SpotifyUser extends ParseObject {
 
     public JSONArray getTopTracks() {
         return getJSONArray(TOP_TRACKS);
+    }
+
+    public void setLikedSongs(String[] likedSong) {put(LIKED_SONGS, Arrays.asList(likedSong));}
+    public JSONArray getLikedSongs() {
+        return getJSONArray(LIKED_SONGS);
     }
 
 

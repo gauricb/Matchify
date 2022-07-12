@@ -25,12 +25,15 @@ import com.parse.ParseUser;
 
 import org.json.JSONArray;
 import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 public class MatchesFragment extends Fragment {
 
@@ -76,21 +79,23 @@ public class MatchesFragment extends Fragment {
 
                 JSONArray myFavoriteArtists = new JSONArray();
                 JSONArray myFavoriteTracks = new JSONArray();
+                JSONArray myLikedSongs = new JSONArray();
 
                 ParseQuery<SpotifyUser> query = ParseQuery.getQuery("SpotifyUser");
                 List<SpotifyUser> obj = new ArrayList<>();
                 List<SpotifyUser> obj2 = new ArrayList<>();
 
                 try {
-                    query.whereEqualTo("username", ParseUser.getCurrentUser().getUsername());
+                    query.whereEqualTo("songUser", ParseUser.getCurrentUser());
                     obj = query.find(); //the current user object size should be 1
                     myFavoriteArtists = obj.get(0).getTopArtists();
                     myFavoriteTracks = obj.get(0).getTopTracks();
+                    myLikedSongs = obj.get(0).getLikedSongs();
                 } catch (ParseException ex) {
                     ex.printStackTrace();
                 }
 
-                query.whereNotEqualTo("username", ParseUser.getCurrentUser().getUsername());
+                query.whereNotEqualTo("songUser", ParseUser.getCurrentUser());
                 try {
                     obj2 = query.find(); //has all the objects that are not the current user (potential matches)
 
@@ -99,10 +104,20 @@ public class MatchesFragment extends Fragment {
                 }
                 int numCommonArtists = 0;
                 int numCommonTracks = 0;
-                Log.d(TAG, ":(((((" + obj2.size()); //should be 2
+                int numCommonLikedSongs = 0;
+
+
+
                 for (int i = 0; i < obj2.size(); i++) {
-                    numCommonArtists = numCommonItems(obj.get(0).getTopArtists(), obj2.get(i).getTopArtists());
-                    numCommonTracks = numCommonItems(obj.get(0).getTopTracks(), obj2.get(i).getTopTracks());
+
+                    try {
+                        numCommonArtists = numCommonItems(myFavoriteArtists, obj2.get(i).getTopArtists());
+                        numCommonTracks = numCommonItems(myFavoriteTracks, obj2.get(i).getTopTracks());
+                        numCommonLikedSongs = numCommonItems(myLikedSongs, obj2.get(i).getLikedSongs());
+                    } catch (JSONException ex) {
+                        ex.printStackTrace();
+                    }
+                    Log.d(TAG, "NUMBER OF COMMON LIKED SONGS" + numCommonLikedSongs);
                     if (numCommonArtists > 1 || numCommonTracks > 1) {
                         matches.add(obj2.get(i));
                     }
@@ -114,8 +129,18 @@ public class MatchesFragment extends Fragment {
 
     }
 
-    public int numCommonItems(JSONArray arr1, JSONArray arr2) {
+    public int numCommonItems(JSONArray arr1, JSONArray arr2) throws JSONException {
         // find the number of common items btw 2 arrays
-        return 2;
+        Set<String> set1 = new HashSet<>();
+        Set<String> set2 = new HashSet<>();
+        for (int i = 0; i < arr1.length(); i++) {
+            set1.add(arr1.getString(i));
+        }
+
+        for (int i = 0; i < arr2.length(); i++) {
+            set2.add(arr2.getString(i));
+        }
+        set1.retainAll(set2);
+        return set1.size();
     }
 }
