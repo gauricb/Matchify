@@ -1,28 +1,66 @@
 package com.example.matchify.models;
 
+import static com.example.matchify.MainActivity.spotifyService;
+
+import android.util.Log;
+
 import com.parse.ParseClassName;
+import com.parse.ParseException;
 import com.parse.ParseObject;
+import com.parse.ParseUser;
+import com.parse.SaveCallback;
+
+import org.json.JSONArray;
+
+import java.util.Arrays;
+
+import kaaes.spotify.webapi.android.models.Artist;
+import kaaes.spotify.webapi.android.models.Pager;
+import kaaes.spotify.webapi.android.models.Track;
+import retrofit.Callback;
+import retrofit.RetrofitError;
+import retrofit.client.Response;
 
 @ParseClassName("SpotifyUser")
 public class SpotifyUser extends ParseObject {
 
-    public static final String USER_DISPLAY_NAME = "display_name";
-    public static final String USER_SPOT_ID = "username";
+    public static final String TAG = "SpotifyUser";
+    public static final String USER_NAME = "username";
     public static final String USER_IMAGE = "profileImage";
+    public static final String CURRENT_USER = "songUser";
+    public static final String TOP_TRACKS = "topTracks";
+    public static final String TOP_ARTISTS = "topArtists";
 
+    public String getUserName() {
+        return getString(USER_NAME);
+    }
+    public void setUserName(String userSpotId) {
+        put(USER_NAME, userSpotId);
+    }
 
-    public String getUserDisplayName() {
-        return getString(USER_DISPLAY_NAME);
-    }
-    public String getUserSpotId() {
-        return getString(USER_SPOT_ID);
-    }
-    public void setUserDisplayName(String userDisplayName) {
-        put(USER_DISPLAY_NAME, userDisplayName);
-    }
-    public void setUserSpotId(String userSpotId) {
-        put(USER_SPOT_ID, userSpotId);
-    }
     public String getUserImage() {return getString(USER_IMAGE);}
     public void setUserImage(String userImage) {put(USER_IMAGE, userImage);}
+
+    public void setCurrentUser(ParseUser songUser) {put(CURRENT_USER, songUser);}
+    public ParseUser getCurrentUser() {return getParseUser(CURRENT_USER);}
+
+    public void setTopTracks(String[] topTracks) {
+        put(TOP_TRACKS, Arrays.asList(topTracks));
+    }
+
+    public void setTopArtists(String[] topArtists) {
+        put(TOP_ARTISTS, Arrays.asList(topArtists));
+    }
+
+    public JSONArray getTopArtists() {
+        return getJSONArray(TOP_ARTISTS);
+    }
+
+    public JSONArray getTopTracks() {
+        return getJSONArray(TOP_TRACKS);
+    }
+
+
+
+
 }

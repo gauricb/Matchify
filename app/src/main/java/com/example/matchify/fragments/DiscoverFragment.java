@@ -17,6 +17,7 @@ import com.example.matchify.R;
 import com.example.matchify.models.Song;
 import com.example.matchify.SongCardsAdapter;
 import com.parse.ParseException;
+import com.parse.ParseUser;
 import com.parse.SaveCallback;
 import com.yalantis.library.Koloda;
 import com.yalantis.library.KolodaListener;
@@ -57,20 +58,23 @@ public class DiscoverFragment extends Fragment {
         songs = new ArrayList<>();
         likedSongs = new ArrayList<>();
 
+        generateRecommendations();
+
+    }
+
+    private void generateRecommendations() {
         //sets up the parameters for the recommendations function
         Map<String, Object> options = new HashMap<>(5);
-        options.put("seed_genres", "kids");
+        options.put("seed_genres", "hip-hop");
         // options.put("seed_artists", "5GnnSrwNCGyfAU4zuIytiS");
         // options.put("seed_tracks", "2yGk5A4oipC4jvDLIVlQIJ");
 
         spotifyService.getRecommendations(options, new Callback<Recommendations>() {
             @Override
             public void success(Recommendations recommendations, Response response) {
-//                Log.d(TAG, recommendations.tracks.get(0).name);
                 for (int i = 0; i < recommendations.tracks.size(); i++) {
                     songs.add(new Song(recommendations.tracks.get(i).name, recommendations.tracks.get(i).artists.get(0).name,
                             recommendations.tracks.get(i).album.images.get(0).url));
-
                 }
 
                 adapter = new SongCardsAdapter(getContext(), songs);
@@ -95,21 +99,8 @@ public class DiscoverFragment extends Fragment {
 
                     @Override
                     public void onCardSwipedRight(int i) {
-                        Toast.makeText(getContext(), "Added to liked songs!" + (i+1), Toast.LENGTH_SHORT).show();
 
-                        likedSongs.add(songs.get(i+1));
-                        Log.d("this was added: ", likedSongs.get(likedSongs.size()-1).getSongName());
-
-                        Song likedSong = new Song();
-                        likedSong.setSongName(likedSongs.get(likedSongs.size()-1).getSongName());
-                        likedSong.setArtistName(likedSongs.get(likedSongs.size()-1).getArtistName());
-                        likedSong.setAlbumCover(likedSongs.get(likedSongs.size()-1).getAlbumCoverUrl());
-                        likedSong.saveInBackground(new SaveCallback() {
-                            @Override
-                            public void done(ParseException e) {
-                                Log.d("liked song saved! ", "mememe");
-                            }
-                        });
+                        saveLikedSong(i);
 
                     }
                     @Override
@@ -154,7 +145,23 @@ public class DiscoverFragment extends Fragment {
             }
         });
 
-
-
     }
+
+    private void saveLikedSong(int i) {
+        likedSongs.add(songs.get(i+1));
+        Song likedSong = new Song();
+        likedSong.setSongName(likedSongs.get(likedSongs.size()-1).getSongName());
+        likedSong.setArtistName(likedSongs.get(likedSongs.size()-1).getArtistName());
+        likedSong.setAlbumCover(likedSongs.get(likedSongs.size()-1).getAlbumCoverUrl());
+        //String currentUsername = ParseUser.getCurrentUser().getUsername();
+        likedSong.setSongUser(ParseUser.getCurrentUser());
+
+        likedSong.saveInBackground(new SaveCallback() {
+            @Override
+            public void done(ParseException e) {
+                Log.d("liked song saved! ", "mememe");
+            }
+        });
+    }
+
 }

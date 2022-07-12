@@ -10,13 +10,25 @@
 
 
     <Button
-        android:id="@+id/buttonLogin"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:id="@+id/buttonSignUp"
+        android:layout_width="186dp"
+        android:layout_height="76dp"
         android:layout_alignParentTop="true"
         android:layout_alignParentEnd="true"
-        android:layout_marginTop="330dp"
-        android:layout_marginEnd="153dp"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="371dp"
+        android:layout_marginEnd="105dp"
+        android:text="SIGN UP" />
+
+    <Button
+        android:id="@+id/buttonLogin"
+        android:layout_width="186dp"
+        android:layout_height="76dp"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentEnd="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="232dp"
+        android:layout_marginEnd="108dp"
         android:text="LOGIN" />
 </RelativeLayout>
 

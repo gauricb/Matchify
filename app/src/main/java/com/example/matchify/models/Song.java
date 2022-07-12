@@ -4,6 +4,7 @@ import android.os.Parcelable;
 
 import com.parse.ParseClassName;
 import com.parse.ParseObject;
+import com.parse.ParseUser;
 
 @ParseClassName("LikedSong")
 
@@ -13,9 +14,11 @@ public class Song extends ParseObject implements Parcelable {
     public String artistName;
     public String albumCoverUrl;
 
+
     public static final String SONG_NAME = "songName";
     public static final String ARTIST_NAME = "artistName";
     public static final String ALBUM_COVER = "albumCover";
+    public static final String SONG_USER = "songUser";
 
     // getters and setters for parse
     public void setSongName(String songName) {
@@ -27,6 +30,7 @@ public class Song extends ParseObject implements Parcelable {
     public void setAlbumCover(String albumCover) {
         put(ALBUM_COVER, albumCover);
     }
+    public void setSongUser(ParseUser songUser) {put(SONG_USER, songUser);}
     public String getParseSongName() {
         return getString(SONG_NAME);
     }
@@ -36,6 +40,7 @@ public class Song extends ParseObject implements Parcelable {
     public String getParseAlbumCover() {
         return getString(ALBUM_COVER);
     }
+    public ParseUser getParseSongUser() {return getParseUser(SONG_USER);}
 
     public Song(){}
 
@@ -43,6 +48,7 @@ public class Song extends ParseObject implements Parcelable {
         this.songName = songName;
         this.artistName = artistName;
         this.albumCoverUrl = albumCoverUrl;
+
     }
 
     // for Parcelable

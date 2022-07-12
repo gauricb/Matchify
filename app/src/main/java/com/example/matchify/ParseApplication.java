@@ -7,6 +7,7 @@ import com.example.matchify.models.Song;
 import com.example.matchify.models.SpotifyUser;
 import com.parse.Parse;
 import com.parse.ParseObject;
+import com.parse.ParseUser;
 
 import okhttp3.OkHttpClient;
 import okhttp3.logging.HttpLoggingInterceptor;
@@ -20,6 +21,7 @@ public class ParseApplication extends Application {
         ParseObject.registerSubclass(Message.class);
         ParseObject.registerSubclass(SpotifyUser.class);
         ParseObject.registerSubclass(Song.class);
+        //ParseObject.registerSubclass(ParseObject.class);
         // Use for monitoring Parse network traffic
         OkHttpClient.Builder builder = new OkHttpClient.Builder();
         HttpLoggingInterceptor httpLoggingInterceptor = new HttpLoggingInterceptor();
