@@ -12,25 +12,19 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.example.matchify.MatchAdapter;
+import com.example.matchify.adapters.MatchAdapter;
 import com.example.matchify.R;
 import com.example.matchify.models.Match;
-import com.example.matchify.models.Song;
 import com.example.matchify.models.SpotifyUser;
 import com.parse.FindCallback;
 import com.parse.ParseException;
-import com.parse.ParseObject;
 import com.parse.ParseQuery;
 import com.parse.ParseUser;
 
 import org.json.JSONArray;
 import org.json.JSONException;
-import org.json.JSONObject;
 
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -102,11 +96,10 @@ public class MatchesFragment extends Fragment {
                 } catch (ParseException ex) {
                     ex.printStackTrace();
                 }
+
                 int numCommonArtists = 0;
                 int numCommonTracks = 0;
                 int numCommonLikedSongs = 0;
-
-
 
                 for (int i = 0; i < obj2.size(); i++) {
 

@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="300dp"
+    android:layout_height="match_parent"
+    android:background="#3F51B5"
+    android:orientation="vertical">
+    <!-- other elements -->
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/dialog_recycler_view"
+        android:layout_width="match_parent"
+        android:layout_height="499dp"></androidx.recyclerview.widget.RecyclerView>
+</LinearLayout>

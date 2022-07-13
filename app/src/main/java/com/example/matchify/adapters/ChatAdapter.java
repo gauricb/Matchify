@@ -1,6 +1,7 @@
-package com.example.matchify;
+package com.example.matchify.adapters;
 
 import android.content.Context;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -11,38 +12,26 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
+import com.example.matchify.R;
 import com.example.matchify.models.Message;
+import com.example.matchify.models.SpotifyUser;
+import com.parse.ParseException;
 
-import java.math.BigInteger;
-import java.security.MessageDigest;
 import java.util.List;
 
 public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.MessageViewHolder> {
 
     private List<Message> mMessages;
     private Context mContext;
-    private String mUserId;
+    private SpotifyUser sender;
 
     private static final int MESSAGE_OUTGOING = 234;
     private static final int MESSAGE_INCOMING = 156;
 
-    // Create a gravatar image based on the hash value obtained from userId
-    private static String getProfileUrl(final String userId) {
-        String hex = "";
-        try {
-            final MessageDigest digest = MessageDigest.getInstance("MD5");
-            final byte[] hash = digest.digest(userId.getBytes());
-            final BigInteger bigInt = new BigInteger(hash);
-            hex = bigInt.abs().toString(16);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return "https://www.gravatar.com/avatar/" + hex + "?d=identicon";
-    }
 
-    public ChatAdapter(Context context, String userId, List<Message> messages) {
+    public ChatAdapter(Context context, SpotifyUser sender, List<Message> messages) {
         mMessages = messages;
-        this.mUserId = userId;
+        this.sender = sender;
         mContext = context;
     }
 
@@ -84,7 +73,8 @@ public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.MessageViewHol
 
     private boolean isMe(int position) {
         Message message = mMessages.get(position);
-        return message.getUserId() != null && message.getUserId().equals(mUserId);
+        //return message.getSender() != null && message.getUserId().equals(mUserId);
+        return message.getSender() != null && message.getSender().equals(sender);
     }
 
     public abstract class MessageViewHolder extends RecyclerView.ViewHolder {
@@ -110,12 +100,18 @@ public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.MessageViewHol
 
         @Override
         public void bindMessage(Message message) {
-            Glide.with(mContext)
-                    .load(getProfileUrl(message.getUserId()))
-                    .circleCrop() // create an effect of a round profile picture
-                    .into(imageOther);
+            try {
+                Glide.with(mContext)
+                        .load(message.getSender().fetchIfNeeded().getString("profileImage"))
+                        .circleCrop() // create an effect of a round profile picture
+                        .into(imageOther);
+                name.setText(message.getSender().fetchIfNeeded().getString("username")); // in addition to message show user ID
+
+            } catch (ParseException e) {
+                Log.v("LOG_TAG", e.toString());
+                e.printStackTrace();
+            }
             body.setText(message.getBody());
-            name.setText(message.getUserId()); // in addition to message show user ID
         }
     }
 
@@ -131,10 +127,15 @@ public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.MessageViewHol
 
         @Override
         public void bindMessage(Message message) {
-            Glide.with(mContext)
-                    .load(getProfileUrl(message.getUserId()))
-                    .circleCrop() // create an effect of a round profile picture
-                    .into(imageMe);
+            try {
+                Glide.with(mContext)
+                        .load(message.getSender().fetchIfNeeded().getString("profileImage"))
+                        .circleCrop() // create an effect of a round profile picture
+                        .into(imageMe);
+            } catch (ParseException e) {
+                Log.v("LOG_TAG", e.toString());
+                e.printStackTrace();
+            }
             body.setText(message.getBody());
         }
     }

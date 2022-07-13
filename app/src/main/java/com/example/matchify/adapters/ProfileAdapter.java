@@ -1,16 +1,19 @@
-package com.example.matchify;
+package com.example.matchify.adapters;
 
 import android.content.Context;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
+import com.example.matchify.R;
 import com.example.matchify.models.Song;
 
 import java.util.List;
@@ -52,11 +55,28 @@ public class ProfileAdapter extends RecyclerView.Adapter<ProfileAdapter.ViewHold
         private TextView artistName;
         private ImageView albumCover;
 
+
+
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
             trackName = itemView.findViewById(R.id.likedTrackName);
             artistName = itemView.findViewById(R.id.likedArtistName);
             albumCover = itemView.findViewById(R.id.likedAlbumCover);
+
+            itemView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    int position = getAdapterPosition();
+                    //make sure the position actually exists in the view
+                    if (position != RecyclerView.NO_POSITION) {
+                        Song song = likedSongs.get(position);
+                        //Log.e(TAG, "song position is " + position);
+                        Toast.makeText(context, "song name is " + song.getParseSongName(), Toast.LENGTH_LONG).show();
+
+
+                    }
+                }
+            });
         }
 
         public void bind(Song song) {
@@ -68,6 +88,7 @@ public class ProfileAdapter extends RecyclerView.Adapter<ProfileAdapter.ViewHold
         @Override
         public void onClick(View v) {
             int position = getAdapterPosition();
+            //make sure the position actually exists in the view
             if (position != RecyclerView.NO_POSITION) {
                 Song song = likedSongs.get(position);
             }

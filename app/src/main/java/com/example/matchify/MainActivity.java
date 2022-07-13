@@ -42,8 +42,10 @@ import com.parse.GetCallback;
 import com.parse.LogInCallback;
 import com.parse.ParseAnonymousUtils;
 import com.parse.ParseException;
+import com.parse.ParseGeoPoint;
 import com.parse.ParseObject;
 import com.parse.ParseQuery;
+import com.parse.ParseRelation;
 import com.parse.ParseUser;
 import com.parse.SaveCallback;
 import com.parse.SignUpCallback;
@@ -82,25 +84,31 @@ public class MainActivity extends AppCompatActivity {
     final FragmentManager fragmentManager = getSupportFragmentManager();
     private BottomNavigationView bottomNavigationView;
 
-    private SpotifyAppRemote mSpotifyAppRemote;
+    public static SpotifyAppRemote mSpotifyAppRemote;
     public static SpotifyService spotifyService;
 
     // for user location
     FusedLocationProviderClient fusedLocationProviderClient;
     int LOCATION_PERMISSION_ID = 44;
+    public static boolean PREFERENCES_SELECTED = false;
+    public static SpotifyUser currentSpotifyUser;
+
+
+//    public MainActivity() throws ParseException {
+//    }
 
 
     protected void onCreate(Bundle savedInstanceState) {
 
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
+        ParseUser user = new ParseUser();
         AUTH_TOKEN = getIntent().getStringExtra(LoginActivity.AUTH_TOKEN);
 
         setServiceApi();
 
         fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this);
-        getLastLocation();
+
 
         bottomNavigationView = findViewById(R.id.bottomNavigation);
 
@@ -127,6 +135,7 @@ public class MainActivity extends AppCompatActivity {
             }
         });
         bottomNavigationView.setSelectedItemId(R.id.action_profile);
+        getLastLocation();
     }
 
 
@@ -169,6 +178,8 @@ public class MainActivity extends AppCompatActivity {
     private void connected() throws ParseException {
 
         Log.d(TAG, "login was selected? " + LOG_IN_SELECTED);
+        mSpotifyAppRemote.getPlayerApi().play("spotify:playlist:37i9dQZF1DX7K31D69s4M1");
+
 
         if (LOG_IN_SELECTED == 1) {
             spotifyService.getMe(new Callback<UserPrivate>() {
@@ -180,9 +191,17 @@ public class MainActivity extends AppCompatActivity {
 
                 @Override
                 public void failure(RetrofitError error) {
-
+                    Log.e(TAG, error.toString());
                 }
             });
+//            if (!PREFERENCES_SELECTED) {
+//                //start preferences activity
+//                Intent intent = new Intent(MainActivity.this, PreferenceActivity.class);
+//                startActivity(intent);
+//                finish();
+//                PREFERENCES_SELECTED = true;
+//            }
+
 
         } else if (SIGN_UP_SELECTED == 1) {
             signUpUser();
@@ -326,8 +345,7 @@ public class MainActivity extends AppCompatActivity {
                             });
                             login(username, USER_PASSWORD);
                         } else {
-                            // Sign up didn't succeed. Look at the ParseException
-                            // to figure out what went wrong
+                            // Sign up didn't succeed. Look at the ParseException to figure out what went wrong
                             Log.e(TAG, "Sign up Error. Username: " + username + " Password: " + USER_PASSWORD, e);
                         }
                     }
@@ -357,10 +375,19 @@ public class MainActivity extends AppCompatActivity {
                         if (location == null) {
                             requestNewLocationData();
                         } else {
-                            //store to current users location field
+                            ParseGeoPoint userLocation = new ParseGeoPoint(location.getLatitude(), location.getLongitude());
+                            try {
+                                getCurrentSpotifyUser().get(0).setUserLocation(userLocation);
+                                getCurrentSpotifyUser().get(0).saveInBackground(new SaveCallback() {
+                                    @Override
+                                    public void done(ParseException e) {
+                                        Log.e(TAG, "!!!! LOCATION SAVED");
+                                    }
+                                });
+                            } catch (ParseException e) {
+                                e.printStackTrace();
+                            }
 
-                            Log.e(TAG, "LATITUDE " + location.getLatitude());
-                            Log.e(TAG, "LONGITUDE " + location.getLongitude());
 
                         }
                     }
@@ -381,16 +408,14 @@ public class MainActivity extends AppCompatActivity {
     @SuppressLint("MissingPermission")
     private void requestNewLocationData() {
 
-        // Initializing LocationRequest
-        // object with appropriate methods
+        // Initializing LocationRequest object with appropriate methods
         LocationRequest mLocationRequest = new LocationRequest();
         mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
         mLocationRequest.setInterval(5);
         mLocationRequest.setFastestInterval(0);
         mLocationRequest.setNumUpdates(1);
 
-        // setting LocationRequest
-        // on FusedLocationClient
+        // setting LocationRequest on FusedLocationClient
         fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this);
         fusedLocationProviderClient.requestLocationUpdates(mLocationRequest, mLocationCallback, Looper.myLooper());
     }
@@ -444,6 +469,29 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    public static List<SpotifyUser> getCurrentSpotifyUser() throws ParseException {
+        ParseQuery<SpotifyUser> spotifyUserParseQuery = ParseQuery.getQuery("SpotifyUser");
+        List<SpotifyUser> currentUser = new ArrayList<>();
+
+        spotifyUserParseQuery.whereEqualTo("songUser", ParseUser.getCurrentUser());
+
+        try {
+            currentUser = spotifyUserParseQuery.find();
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+        return currentUser;
+
+    }
+
+    static {
+        try {
+            currentSpotifyUser = getCurrentSpotifyUser().get(0);
+            Log.e("current user is ", currentSpotifyUser.getUserName());
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+    }
 
 
 }

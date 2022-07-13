@@ -16,7 +16,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
-import com.example.matchify.ProfileAdapter;
+import com.example.matchify.adapters.ProfileAdapter;
 import com.example.matchify.R;
 import com.example.matchify.models.Song;
 import com.example.matchify.models.SpotifyUser;
@@ -90,7 +90,7 @@ public class ProfileFragment extends Fragment {
         spotifyUserParseQuery.whereEqualTo("songUser", ParseUser.getCurrentUser());
         try {
             currentUser = spotifyUserParseQuery.find();
-            Log.e(TAG, "!!!!"+currentUser.size());
+            Log.e(TAG, "!!!!" + currentUser.size());
         } catch (ParseException e) {
             e.printStackTrace();
         }

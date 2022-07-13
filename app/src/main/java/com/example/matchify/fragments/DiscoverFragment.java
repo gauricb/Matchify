@@ -15,10 +15,8 @@ import androidx.fragment.app.Fragment;
 
 import com.example.matchify.R;
 import com.example.matchify.models.Song;
-import com.example.matchify.SongCardsAdapter;
-import com.example.matchify.models.SpotifyUser;
+import com.example.matchify.adapters.SongCardsAdapter;
 import com.parse.ParseException;
-import com.parse.ParseQuery;
 import com.parse.ParseUser;
 import com.parse.SaveCallback;
 import com.yalantis.library.Koloda;
@@ -177,7 +175,7 @@ public class DiscoverFragment extends Fragment {
 
     public Map<String, Object> getGenres() {
         Map<String, Object> options = new HashMap<>(5);
-        options.put("seed_genres", "hip-hop");
+        options.put("seed_genres", "indie-pop");
         return options;
     }
 

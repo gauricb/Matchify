@@ -38,6 +38,7 @@
             </intent-filter>
         </activity>
         <activity android:name=".MainActivity"></activity>
+        <activity android:name=".PreferenceActivity"></activity>
 
         <meta-data
             android:name="preloaded_fonts"

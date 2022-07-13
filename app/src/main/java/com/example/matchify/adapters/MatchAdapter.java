@@ -1,18 +1,21 @@
-package com.example.matchify;
+package com.example.matchify.adapters;
 
 import android.content.Context;
+import android.content.Intent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
-import com.example.matchify.models.Match;
-import com.example.matchify.models.Song;
+import com.example.matchify.ChatActivity;
+import com.example.matchify.R;
 import com.example.matchify.models.SpotifyUser;
 
 import java.util.List;
@@ -50,17 +53,32 @@ public class MatchAdapter extends RecyclerView.Adapter<MatchAdapter.ViewHolder> 
 
         private ImageView matchPicture;
         private TextView matchName;
+        private Button chatButton;
 
 
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
             matchName = itemView.findViewById(R.id.matchName);
             matchPicture = itemView.findViewById(R.id.matchProfilePic);
+            chatButton = itemView.findViewById(R.id.buttonChatMatch);
+
         }
 
         public void bind(SpotifyUser match) {
             matchName.setText(match.getUserName());
             Glide.with(context).load(match.getUserImage()).into(matchPicture);
+            chatButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    Toast.makeText(context, "chat selected!", Toast.LENGTH_SHORT).show();
+                    Intent intent = new Intent(context, ChatActivity.class);
+                    String thisMatchName = match.getUserName();
+                    intent.putExtra("MatchName", thisMatchName);
+                    intent.putExtra("MatchObject", match);
+                    context.startActivity(intent);
+                }
+            });
+
         }
 
         @Override

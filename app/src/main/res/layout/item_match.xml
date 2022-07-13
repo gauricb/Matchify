@@ -33,6 +33,17 @@
         app:layout_constraintVertical_bias="0.511"
         tools:text="Tame Impala" />
 
+    <Button
+        android:id="@+id/buttonChatMatch"
+        android:layout_width="76dp"
+        android:layout_height="37dp"
+        android:layout_marginEnd="24dp"
+        android:text="chat"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.484" />
+
 </androidx.constraintlayout.widget.ConstraintLayout>
 
 
