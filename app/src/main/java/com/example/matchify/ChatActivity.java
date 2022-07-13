@@ -1,5 +1,7 @@
 package com.example.matchify;
 
+import static com.example.matchify.MainActivity.spotifyService;
+
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -49,9 +51,9 @@ public class ChatActivity extends AppCompatActivity {
         if (ParseUser.getCurrentUser() != null) { // start with existing user
             startWithCurrentUser();
         }
-        else { // If not logged in, login as a new anonymous user
-            login();
-        }
+//        else { // If not logged in, login as a new anonymous user
+//            login();
+//        }
 
         // Load existing messages to begin with
         refreshMessages();
@@ -100,6 +102,7 @@ public class ChatActivity extends AppCompatActivity {
             @Override
             public void done(ParseUser user, ParseException e) {
                 if (e != null) {
+                    user.setUsername(spotifyService.getMe().display_name);
                     Log.e(TAG, "Anonymous login failed: ", e);
                 } else {
                     startWithCurrentUser();
