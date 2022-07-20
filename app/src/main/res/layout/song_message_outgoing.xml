@@ -5,6 +5,7 @@
     android:layout_width="400dp"
     android:layout_height="100dp"
     android:layout_margin="5dp"
+    android:background="#3F51B5"
     android:clickable="true">
 
     <ImageView
@@ -41,5 +42,15 @@
         android:textColor="#E6DFDF"
         android:textSize="16sp"
         tools:text="Tame Impala" />
+
+    <Button
+        android:id="@+id/buttonAdd"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentEnd="true"
+        android:layout_centerVertical="true"
+        android:layout_marginEnd="24dp"
+        android:background="#A54444"
+        android:text="ADD" />
 
 </RelativeLayout>

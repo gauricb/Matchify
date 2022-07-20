@@ -1,5 +1,6 @@
 package com.example.matchify.fragments;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -12,6 +13,7 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.matchify.adapters.ChatSongAdapter;
 import com.example.matchify.adapters.MatchAdapter;
 import com.example.matchify.R;
 import com.example.matchify.models.Match;
@@ -62,15 +64,14 @@ public class MatchesFragment extends Fragment {
         //pull all your matches from the Match class on Parse
         //loop through spotify users
         ParseQuery<SpotifyUser> query = ParseQuery.getQuery(SpotifyUser.class);
-        query.setLimit(20);
         query.findInBackground(new FindCallback<SpotifyUser>() {
             @Override
             public void done(List<SpotifyUser> objects, ParseException e) {
                 if (e != null) {
-                    Log.e(TAG, "Issue with getting liked songs", e);
+                    Log.e(TAG, "Issue with getting users", e);
                     return;
                 }
-
+                // initializing parameters of the match algo
                 JSONArray myFavoriteArtists = new JSONArray();
                 JSONArray myFavoriteTracks = new JSONArray();
                 JSONArray myLikedSongs = new JSONArray();
@@ -97,21 +98,37 @@ public class MatchesFragment extends Fragment {
                     ex.printStackTrace();
                 }
 
-                int numCommonArtists = 0;
-                int numCommonTracks = 0;
-                int numCommonLikedSongs = 0;
+
+
+                double compatibilityScore = 0.0;
+
+                double likedSongScore = 0.0;
+                double artistScore = 0.0;
+                double trackScore = 0.0;
+                double ageScore = 0.0;
+                double locationScore = 0.0;
+
 
                 for (int i = 0; i < obj2.size(); i++) {
 
                     try {
-                        numCommonArtists = numCommonItems(myFavoriteArtists, obj2.get(i).getTopArtists());
-                        numCommonTracks = numCommonItems(myFavoriteTracks, obj2.get(i).getTopTracks());
-                        numCommonLikedSongs = numCommonItems(myLikedSongs, obj2.get(i).getLikedSongs());
+                        likedSongScore = getScore(myLikedSongs, obj2.get(i).getLikedSongs());
+                        artistScore = getScore(myFavoriteArtists, obj2.get(i).getTopArtists());
+                        trackScore = getScore(myFavoriteTracks, obj2.get(i).getTopTracks());
+                        locationScore = getDistanceScore(obj.get(0), obj2.get(i), obj.get(0).getUserLocationRange()) ;
+                        ageScore = getAgeScore(obj2.get(i).getUserAge(), obj.get(0).getUserAgeRange());
+
+
                     } catch (JSONException ex) {
                         ex.printStackTrace();
                     }
-                    Log.d(TAG, "NUMBER OF COMMON LIKED SONGS" + numCommonLikedSongs);
-                    if (numCommonArtists > 1 || numCommonTracks > 1) {
+                    compatibilityScore = (likedSongScore * 0.1 + artistScore * 0.2 + trackScore * 0.1 + 0.2 * locationScore + ageScore * 0.2);
+                    // send compatibility percent to adapter
+                    Intent intent1 = new Intent(getContext(), MatchAdapter.class);
+                    intent1.putExtra("compat", Double.toString(compatibilityScore));
+
+                    Log.e(TAG, "##########" + compatibilityScore);
+                    if (compatibilityScore < 50) {
                         matches.add(obj2.get(i));
                     }
                 }
@@ -136,4 +153,39 @@ public class MatchesFragment extends Fragment {
         set1.retainAll(set2);
         return set1.size();
     }
+
+    public double getScore(JSONArray arr1, JSONArray arr2) throws JSONException {
+        int numCommonItems = numCommonItems(arr1, arr2);
+        int actualNumItems = 0;
+
+        if (arr1.length() > arr2.length()) {
+            actualNumItems = arr1.length();
+        }
+        else {
+            actualNumItems = arr2.length();
+        }
+
+        int score = numCommonItems /  actualNumItems;
+        return score * 100;
+
+    }
+
+    public double getAgeScore(int matchAge, int ageRange) {
+
+        if (matchAge < ageRange) {
+            return 1.0 * 100;
+        }
+
+        return 0.0;
+    }
+
+    public double getDistanceScore(SpotifyUser me, SpotifyUser anotherUser, int locationRange) {
+
+        double distance =  me.getUserLocation().distanceInMilesTo(anotherUser.getUserLocation());
+        if (distance < locationRange) {
+            return 1.0 * 100;
+        }
+        return 0.0;
+    }
+
 }

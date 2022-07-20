@@ -36,6 +36,7 @@ public class SpotifyUser extends ParseObject {
     public static final String USER_AGE = "myAge";
     public static final String USER_AGE_RANGE = "ageRange";
     public static final String USER_LOCATION_RANGE = "locationRange";
+    public static final String USER_GENRES = "genres";
 
     public String getUserName() {
         return getString(USER_NAME);
@@ -67,6 +68,13 @@ public class SpotifyUser extends ParseObject {
     public void setLikedSongs(String[] likedSong) {put(LIKED_SONGS, Arrays.asList(likedSong));}
     public JSONArray getLikedSongs() {
         return getJSONArray(LIKED_SONGS);
+    }
+
+    public void setUserGenres(String[] genres) {
+        put(USER_GENRES, Arrays.asList(genres));
+    }
+    public JSONArray getUserGenres() {
+        return getJSONArray(USER_GENRES);
     }
 
     public ParseGeoPoint getUserLocation() {

@@ -113,6 +113,7 @@ public class ProfileFragment extends Fragment {
                     userLikedSongs[i] = likedSongs.get(i).getParseSongName();
                 }
                 finalCurrentUser.get(0).setLikedSongs(userLikedSongs);
+                //finalCurrentUser.get(0).setUserGenres();
                 finalCurrentUser.get(0).saveInBackground(new SaveCallback() {
                     @Override
                     public void done(ParseException e) {

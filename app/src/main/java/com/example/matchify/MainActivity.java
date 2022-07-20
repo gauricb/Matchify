@@ -93,11 +93,6 @@ public class MainActivity extends AppCompatActivity {
     public static boolean PREFERENCES_SELECTED = false;
     public static SpotifyUser currentSpotifyUser;
 
-
-//    public MainActivity() throws ParseException {
-//    }
-
-
     protected void onCreate(Bundle savedInstanceState) {
 
         super.onCreate(savedInstanceState);
@@ -108,7 +103,6 @@ public class MainActivity extends AppCompatActivity {
         setServiceApi();
 
         fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this);
-
 
         bottomNavigationView = findViewById(R.id.bottomNavigation);
 
@@ -178,7 +172,19 @@ public class MainActivity extends AppCompatActivity {
     private void connected() throws ParseException {
 
         Log.d(TAG, "login was selected? " + LOG_IN_SELECTED);
-        mSpotifyAppRemote.getPlayerApi().play("spotify:playlist:37i9dQZF1DX7K31D69s4M1");
+
+
+        spotifyService.getTrack("5i5fCpsnqDJ9AfeObgd0gW", new Callback<Track>() {
+            @Override
+            public void success(Track track, Response response) {
+                Log.e(TAG, "@@@@@" + track.artists.get(0));
+            }
+
+            @Override
+            public void failure(RetrofitError error) {
+
+            }
+        });
 
 
         if (LOG_IN_SELECTED == 1) {
@@ -194,13 +200,7 @@ public class MainActivity extends AppCompatActivity {
                     Log.e(TAG, error.toString());
                 }
             });
-//            if (!PREFERENCES_SELECTED) {
-//                //start preferences activity
-//                Intent intent = new Intent(MainActivity.this, PreferenceActivity.class);
-//                startActivity(intent);
-//                finish();
-//                PREFERENCES_SELECTED = true;
-//            }
+
 
 
         } else if (SIGN_UP_SELECTED == 1) {
@@ -240,7 +240,7 @@ public class MainActivity extends AppCompatActivity {
 
     private void onLogOutButton() {
         AuthorizationClient.clearCookies(MainActivity.this);
-        ParseUser.getCurrentUser().logOut();
+        //ParseUser.getCurrentUser().logOut();
         // navigate back to the login screen
         Intent i = new Intent(MainActivity.this, LoginActivity.class);
         //make sure the back button won't work
@@ -343,7 +343,7 @@ public class MainActivity extends AppCompatActivity {
                                     }
                                 }
                             });
-                            login(username, USER_PASSWORD);
+                            //login(username, USER_PASSWORD);
                         } else {
                             // Sign up didn't succeed. Look at the ParseException to figure out what went wrong
                             Log.e(TAG, "Sign up Error. Username: " + username + " Password: " + USER_PASSWORD, e);
@@ -470,6 +470,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public static List<SpotifyUser> getCurrentSpotifyUser() throws ParseException {
+
         ParseQuery<SpotifyUser> spotifyUserParseQuery = ParseQuery.getQuery("SpotifyUser");
         List<SpotifyUser> currentUser = new ArrayList<>();
 

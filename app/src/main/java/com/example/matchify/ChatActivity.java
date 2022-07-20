@@ -1,38 +1,33 @@
 package com.example.matchify;
 
 import static com.example.matchify.MainActivity.currentSpotifyUser;
-import static com.example.matchify.MainActivity.spotifyService;
 
-import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.fragment.app.FragmentManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import android.app.Dialog;
-import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.MotionEvent;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.Toast;
 
-import com.example.matchify.adapters.ChatAdapter;
-import com.example.matchify.adapters.ChatSongAdapter;
-import com.example.matchify.adapters.ProfileAdapter;
+import com.example.matchify.adapters.CopyChatAdapter;
+import com.example.matchify.fragments.SongDialogFragment;
 import com.example.matchify.models.Message;
-import com.example.matchify.models.Song;
 import com.example.matchify.models.SpotifyUser;
 import com.parse.FindCallback;
-import com.parse.LogInCallback;
-import com.parse.ParseAnonymousUtils;
 import com.parse.ParseException;
 import com.parse.ParseQuery;
 import com.parse.ParseUser;
 import com.parse.SaveCallback;
 import com.parse.livequery.ParseLiveQueryClient;
 import com.parse.livequery.SubscriptionHandling;
+import com.spotify.android.appremote.api.ConnectionParams;
+import com.spotify.android.appremote.api.Connector;
+import com.spotify.android.appremote.api.SpotifyAppRemote;
 
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -42,8 +37,7 @@ import java.util.List;
 public class ChatActivity extends AppCompatActivity {
 
     static final String TAG = ChatActivity.class.getSimpleName();
-    static final String USER_ID_KEY = "userId";
-    static final String BODY_KEY = "body";
+
     static final int MAX_CHAT_MESSAGES_TO_SHOW = 50;
 
 
@@ -53,64 +47,79 @@ public class ChatActivity extends AppCompatActivity {
     RecyclerView rvChat;
     List<Message> mMessages;
     Boolean mFirstLoad;
-    ChatAdapter mAdapter;
-    String myMatchName;
+    //ChatAdapter mAdapter;
+    CopyChatAdapter mAdapter;
     SpotifyUser matchObject;
-    Song selectedSong;
-    ChatSongAdapter chatSongAdapter;
-    Dialog dialog;
-    RecyclerView songRv;
-    protected List<Song> likedSongs;
 
+    public static SpotifyAppRemote mSpotifyAppRemote;
+
+
+    private static final String CLIENT_ID = "33a4d498feb4475c902c47154d370dc2";
+    private static final String REDIRECT_URI = "capstone-app-login://callback";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_chat);
-        // User login
-        if (ParseUser.getCurrentUser() != null) { // start with existing user
-            startWithCurrentUser();
-        }
-        Intent intent = getIntent();
-        myMatchName = getIntent().getStringExtra("MatchName");
-        Log.e(TAG, "my match's name is---------> " + myMatchName);
 
 
+        ConnectionParams connectionParams =
+                new ConnectionParams.Builder(CLIENT_ID)
+                        .setRedirectUri(REDIRECT_URI)
+                        .showAuthView(true)
+                        .build();
 
-        // Load existing messages to begin with
-        refreshMessages();
+        SpotifyAppRemote.connect(this, connectionParams,
+                new Connector.ConnectionListener() {
 
-        // Make sure the Parse server is setup to configured for live queries
-        // Enter the websocket URL of your Parse server
-        String websocketUrl = "wss://matchify.b4a.io/"; // ⚠️ TYPE IN A VALID WSS:// URL HERE
+                    public void onConnected(SpotifyAppRemote spotifyAppRemote) {
+                        mSpotifyAppRemote = spotifyAppRemote;
+                        Log.d("MainActivity", "Connected! Yay!");
+                        // Now you can start interacting with App Remote
 
-        ParseLiveQueryClient parseLiveQueryClient = null;
-        try {
-            parseLiveQueryClient = ParseLiveQueryClient.Factory.getClient(new URI(websocketUrl));
-        } catch (URISyntaxException e) {
-            e.printStackTrace();
-        }
+                            startWithCurrentUser();
+                        // Load existing messages to begin with
+                        refreshMessages();
+                        //mSpotifyAppRemote.getPlayerApi().play("spotify:playlist:37i9dQZF1DX2sUQwD7tbmL");
 
-        ParseQuery<Message> parseQuery = ParseQuery.getQuery(Message.class);
-        // This query can even be more granular (i.e. only refresh if the entry was added by some other user)
-        // parseQuery.whereNotEqualTo(USER_ID_KEY, ParseUser.getCurrentUser().getObjectId());
+                        // Make sure the Parse server is setup to configured for live queries
+                        // Enter the websocket URL of your Parse server
+                        String websocketUrl = "wss://matchify.b4a.io/"; // ⚠️ TYPE IN A VALID WSS:// URL HERE
 
-        // Connect to Parse server
-        SubscriptionHandling<Message> subscriptionHandling = parseLiveQueryClient.subscribe(parseQuery);
+                        ParseLiveQueryClient parseLiveQueryClient = null;
+                        try {
+                            parseLiveQueryClient = ParseLiveQueryClient.Factory.getClient(new URI(websocketUrl));
+                        } catch (URISyntaxException e) {
+                            e.printStackTrace();
+                        }
 
-        // Listen for CREATE events on the Message class
-        subscriptionHandling.handleEvent(SubscriptionHandling.Event.CREATE, (query, object) -> {
-            mMessages.add(0, object);
+                        ParseQuery<Message> parseQuery = ParseQuery.getQuery(Message.class);
+                        // This query can even be more granular (i.e. only refresh if the entry was added by some other user)
+                        // parseQuery.whereNotEqualTo(USER_ID_KEY, ParseUser.getCurrentUser().getObjectId());
 
-            // RecyclerView updates need to be run on the UI thread
-            runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    mAdapter.notifyDataSetChanged();
-                    rvChat.scrollToPosition(0);
-                }
-            });
-        });
+                        // Connect to Parse server
+                        SubscriptionHandling<Message> subscriptionHandling = parseLiveQueryClient.subscribe(parseQuery);
+
+                        // Listen for CREATE events on the Message class
+                        subscriptionHandling.handleEvent(SubscriptionHandling.Event.CREATE, (query, object) -> {
+                            mMessages.add(0, object);
+
+                            // RecyclerView updates need to be run on the UI thread
+                            runOnUiThread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    mAdapter.notifyDataSetChanged();
+                                    rvChat.scrollToPosition(0);
+                                }
+                            });
+                        });
+
+                    }
+
+                    public void onFailure(Throwable throwable) {
+                        Log.e("MyActivity", throwable.getMessage(), throwable);
+                    }
+                });
     }
 
     // Get the userId from the cached currentUser object
@@ -118,41 +127,32 @@ public class ChatActivity extends AppCompatActivity {
         setupMessagePosting();
     }
 
-    // Create an anonymous user using ParseAnonymousUtils and set sUserId
-    void login() {
-        ParseAnonymousUtils.logIn(new LogInCallback() {
-            @Override
-            public void done(ParseUser user, ParseException e) {
-                if (e != null) {
-                    user.setUsername(spotifyService.getMe().display_name);
-                    Log.e(TAG, "Anonymous login failed: ", e);
-                } else {
-                    startWithCurrentUser();
-                }
-            }
-        });
-    }
-
     // Set up button event handler which posts the entered message to Parse
     void setupMessagePosting() {
         // Find the text field and button
-        etMessage = (EditText) findViewById(R.id.etMessage);
+
         ibSend = (ImageButton) findViewById(R.id.ibSend);
         rvChat = (RecyclerView) findViewById(R.id.rvChat);
+
+        etMessage = (EditText) findViewById(R.id.etMessage);
+
         ibAttach = findViewById(R.id.ibAttach);
         mMessages = new ArrayList<>();
         mFirstLoad = true;
 
-        final String userId = ParseUser.getCurrentUser().getObjectId();
         final SpotifyUser spotifySender = currentSpotifyUser;
         matchObject = getIntent().getParcelableExtra("MatchObject");
-        Log.e(TAG, "my match object's name is ------->" + matchObject.getUserName());
+        //TODO SEND MATCH OBJECT TO CHATSONGADAPTER
+
         final SpotifyUser spotifyReceiver = matchObject;
-        mAdapter = new ChatAdapter(ChatActivity.this, spotifySender, mMessages);
+        //mAdapter = new ChatAdapter(ChatActivity.this, spotifySender, mMessages);
+
+        mAdapter = new CopyChatAdapter(ChatActivity.this, spotifySender, mMessages, mSpotifyAppRemote);
         rvChat.setAdapter(mAdapter);
 
-        // associate the LayoutManager with the RecylcerView
+        // associate the LayoutManager with the RecyclerView
         final LinearLayoutManager linearLayoutManager = new LinearLayoutManager(ChatActivity.this);
+        linearLayoutManager.setReverseLayout(true);
         rvChat.setLayoutManager(linearLayoutManager);
 
         // When send button is clicked, create message object on Parse
@@ -164,9 +164,8 @@ public class ChatActivity extends AppCompatActivity {
                 Message message = new Message();
                 message.setSender(spotifySender);
                 message.setReceiver(spotifyReceiver);
-                Log.e(TAG, "Sender: " + spotifySender.getUserName() + "Receiver: " + spotifyReceiver.getUserName());
 
-                //message.setUserId(ParseUser.getCurrentUser().getObjectId());
+
                 message.setBody(data);
 
                 message.saveInBackground(new SaveCallback() {
@@ -183,45 +182,19 @@ public class ChatActivity extends AppCompatActivity {
                 etMessage.setText(null);
             }
         });
+
         ibAttach.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                dialog = new Dialog(ChatActivity.this);
-                dialog.setContentView(R.layout.song_dialog_box);
-                likedSongs = new ArrayList<>();
-                chatSongAdapter = new ChatSongAdapter(ChatActivity.this, likedSongs);
-                songRv = dialog.findViewById(R.id.dialog_recycler_view);
-                songRv.setLayoutManager(new LinearLayoutManager(ChatActivity.this));
-                songRv.setAdapter(chatSongAdapter);
-
-                ParseQuery<Song> query = ParseQuery.getQuery(Song.class);
-                query.whereEqualTo("songUser", ParseUser.getCurrentUser());
-                query.setLimit(20);
-                query.addDescendingOrder("createdAt");
-
-
-
-                query.findInBackground(new FindCallback<Song>() {
-                    @Override
-                    public void done(List<Song> objects, ParseException e) {
-                        likedSongs.addAll(objects);
-
-                        chatSongAdapter.notifyDataSetChanged();
-                    }
-                });
-
-                // when a song item is selected make it message body
-                Intent song_intent = getIntent();
-                String song_name = song_intent.getStringExtra("SongName");
-                Log.e(TAG, "my match's name is---------> " + song_name);
-
-
-                dialog.show();
-
-
+                showSongDialog();
             }
         });
 
+    }
+    private void showSongDialog() {
+        FragmentManager fm = getSupportFragmentManager();
+        SongDialogFragment songDialogFragment = SongDialogFragment.newInstance("Select Song");
+        songDialogFragment.show(fm, "song_dialog_box");
     }
 
     void refreshMessages() {
@@ -236,8 +209,10 @@ public class ChatActivity extends AppCompatActivity {
         // get the latest 50 messages, order will show up newest to oldest of this group
         query.orderByDescending("createdAt");
         // TODO QUERY ONLY SENDER AND RECEIVER'S MESSAGES
-        query.whereEqualTo("spotifyUserSender", spotifySender);
-        query.whereEqualTo("spotifyUserReceiver", spotifyReceiver);
+//        query.whereEqualTo("spotifyUserSender", spotifySender);
+//        query.whereEqualTo("spotifyUserReceiver", spotifySender);
+//        query.whereEqualTo("spotifyUserSender", spotifyReceiver);
+//        query.whereEqualTo("spotifyUserReceiver", spotifySender);
 
         // Execute query to fetch all messages from Parse asynchronously
         // This is equivalent to a SELECT query with SQL

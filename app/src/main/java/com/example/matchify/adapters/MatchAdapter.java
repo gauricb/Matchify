@@ -1,7 +1,10 @@
 package com.example.matchify.adapters;
 
+import android.app.Activity;
 import android.content.Context;
+import android.content.ContextWrapper;
 import android.content.Intent;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -24,6 +27,7 @@ public class MatchAdapter extends RecyclerView.Adapter<MatchAdapter.ViewHolder> 
 
     private Context context;
     private List<SpotifyUser> matches;
+    public static final String TAG = "MatchAdapter";
 
     public MatchAdapter(Context context, List<SpotifyUser> matches) {
         this.context = context;
@@ -54,6 +58,7 @@ public class MatchAdapter extends RecyclerView.Adapter<MatchAdapter.ViewHolder> 
         private ImageView matchPicture;
         private TextView matchName;
         private Button chatButton;
+        private TextView compatibilityPercent;
 
 
         public ViewHolder(@NonNull View itemView) {
@@ -61,19 +66,32 @@ public class MatchAdapter extends RecyclerView.Adapter<MatchAdapter.ViewHolder> 
             matchName = itemView.findViewById(R.id.matchName);
             matchPicture = itemView.findViewById(R.id.matchProfilePic);
             chatButton = itemView.findViewById(R.id.buttonChatMatch);
+            compatibilityPercent = itemView.findViewById(R.id.tvCompatibility);
 
+        }
+
+        private Activity unwrap(Context context) {
+            while (!(context instanceof Activity) && context instanceof ContextWrapper) {
+                context = ((ContextWrapper) context).getBaseContext();
+            }
+            return (Activity) context;
         }
 
         public void bind(SpotifyUser match) {
             matchName.setText(match.getUserName());
+            Activity activity = unwrap(itemView.getContext());
+            //get compatibility percentage from MatchFragment here
+            String compat = activity.getIntent().getStringExtra("compat");
+            Log.e(TAG, "$$$$$$$" + compat);
+            compatibilityPercent.setText(compat + "%");
             Glide.with(context).load(match.getUserImage()).into(matchPicture);
             chatButton.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
                     Toast.makeText(context, "chat selected!", Toast.LENGTH_SHORT).show();
                     Intent intent = new Intent(context, ChatActivity.class);
-                    String thisMatchName = match.getUserName();
-                    intent.putExtra("MatchName", thisMatchName);
+                    Intent intent1 = new Intent(context, ChatSongAdapter.class);
+                    intent1.putExtra("MatchObject", match);
                     intent.putExtra("MatchObject", match);
                     context.startActivity(intent);
                 }

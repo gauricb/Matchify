@@ -63,20 +63,15 @@ public class DiscoverFragment extends Fragment {
     }
 
     private void generateRecommendations() {
-        //sets up the parameters for the recommendations function
-//        Map<String, Object> options = new HashMap<>(5);
-//        options.put("seed_genres", "hip-hop");
-        // TODO ASK USER FOR GENRES HERE
 
-        // options.put("seed_artists", "5GnnSrwNCGyfAU4zuIytiS");
-        // options.put("seed_tracks", "2yGk5A4oipC4jvDLIVlQIJ");
+        // TODO ASK USER FOR GENRES HERE
 
         spotifyService.getRecommendations(getGenres(), new Callback<Recommendations>() {
             @Override
             public void success(Recommendations recommendations, Response response) {
                 for (int i = 0; i < recommendations.tracks.size(); i++) {
                     songs.add(new Song(recommendations.tracks.get(i).name, recommendations.tracks.get(i).artists.get(0).name,
-                            recommendations.tracks.get(i).album.images.get(0).url));
+                            recommendations.tracks.get(i).album.images.get(0).url, recommendations.tracks.get(i).uri, recommendations.tracks.get(i).external_urls.get("spotify")));
                 }
 
                 adapter = new SongCardsAdapter(getContext(), songs);
@@ -163,6 +158,8 @@ public class DiscoverFragment extends Fragment {
         likedSong.setArtistName(likedSongs.get(likedSongs.size()-1).getArtistName());
         likedSong.setAlbumCover(likedSongs.get(likedSongs.size()-1).getAlbumCoverUrl());
         likedSong.setSongUser(ParseUser.getCurrentUser());
+        likedSong.setSongUri(likedSongs.get(likedSongs.size()-1).getSongUri());
+        likedSong.setSongLink(likedSongs.get(likedSongs.size()-1).getSongLink());
 
 
         likedSong.saveInBackground(new SaveCallback() {

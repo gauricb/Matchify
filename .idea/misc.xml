@@ -28,6 +28,8 @@
         <entry key="app/src/main/res/layout/song_card.xml" value="0.375" />
         <entry key="app/src/main/res/layout/song_card_two.xml" value="0.375" />
         <entry key="app/src/main/res/layout/song_dialog_box.xml" value="0.25861195542046606" />
+        <entry key="app/src/main/res/layout/song_message.xml" value="0.15760869565217392" />
+        <entry key="app/src/main/res/layout/song_message_outgoing.xml" value="0.5029769676319067" />
         <entry key="app/src/main/res/menu/menu_bottom_navigation.xml" value="0.2947916666666667" />
         <entry key="app/src/main/res/menu/menu_main.xml" value="0.29583333333333334" />
       </map>

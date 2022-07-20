@@ -1,7 +1,8 @@
 package com.example.matchify.adapters;
 
+import static com.example.matchify.MainActivity.mSpotifyAppRemote;
+
 import android.content.Context;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -60,7 +61,7 @@ public class ProfileAdapter extends RecyclerView.Adapter<ProfileAdapter.ViewHold
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
             trackName = itemView.findViewById(R.id.likedTrackName);
-            artistName = itemView.findViewById(R.id.likedArtistName);
+            artistName = itemView.findViewById(R.id.outgoingMessage);
             albumCover = itemView.findViewById(R.id.likedAlbumCover);
 
             itemView.setOnClickListener(new View.OnClickListener() {
@@ -70,8 +71,9 @@ public class ProfileAdapter extends RecyclerView.Adapter<ProfileAdapter.ViewHold
                     //make sure the position actually exists in the view
                     if (position != RecyclerView.NO_POSITION) {
                         Song song = likedSongs.get(position);
-                        //Log.e(TAG, "song position is " + position);
                         Toast.makeText(context, "song name is " + song.getParseSongName(), Toast.LENGTH_LONG).show();
+
+                        mSpotifyAppRemote.getPlayerApi().play(song.getParseSongUri());
 
 
                     }
