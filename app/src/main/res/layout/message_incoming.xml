@@ -11,15 +11,15 @@
     <TextView
         android:id="@+id/tvName"
         android:layout_marginLeft="15dp"
-        android:layout_toRightOf="@+id/ivProfileOther"
-        android:layout_alignTop="@+id/ivProfileOther"
+        android:layout_toRightOf="@+id/ivProfileMe"
+        android:layout_alignTop="@+id/ivProfileMe"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:paddingBottom="4dp"
         android:text="Johny Lindsey" />
 
     <ImageView
-        android:id="@+id/ivProfileOther"
+        android:id="@+id/ivProfileMe"
         android:layout_alignParentLeft="true"
         android:contentDescription="@string/profile_other"
         android:layout_width="64dp"

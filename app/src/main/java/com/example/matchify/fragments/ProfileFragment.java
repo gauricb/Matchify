@@ -2,16 +2,21 @@ package com.example.matchify.fragments;
 
 import static com.example.matchify.MainActivity.spotifyService;
 
+import android.content.Context;
+import android.graphics.Canvas;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.content.ContextCompat;
 import androidx.databinding.DataBindingUtil;
 import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -21,6 +26,7 @@ import com.example.matchify.R;
 import com.example.matchify.models.Song;
 import com.example.matchify.models.SpotifyUser;
 import com.example.matchify.databinding.FragmentProfileBinding;
+import com.parse.DeleteCallback;
 import com.parse.FindCallback;
 import com.parse.ParseException;
 import com.parse.ParseQuery;
@@ -30,6 +36,7 @@ import com.parse.SaveCallback;
 import java.util.ArrayList;
 import java.util.List;
 
+import it.xabaras.android.recyclerview.swipedecorator.RecyclerViewSwipeDecorator;
 import kaaes.spotify.webapi.android.models.UserPrivate;
 import retrofit.Callback;
 import retrofit.RetrofitError;
@@ -77,6 +84,8 @@ public class ProfileFragment extends Fragment {
 
         likedSongs = new ArrayList<>();
         adapter = new ProfileAdapter(getContext(), likedSongs);
+
+
         rvLikedSongs.setLayoutManager(new LinearLayoutManager(getContext()));
         rvLikedSongs.setAdapter(adapter);
 
@@ -86,6 +95,7 @@ public class ProfileFragment extends Fragment {
         query.addDescendingOrder("createdAt");
 
         ParseQuery<SpotifyUser> spotifyUserParseQuery = ParseQuery.getQuery("SpotifyUser");
+
         List<SpotifyUser> currentUser = new ArrayList<>();
         spotifyUserParseQuery.whereEqualTo("songUser", ParseUser.getCurrentUser());
         try {
@@ -113,7 +123,6 @@ public class ProfileFragment extends Fragment {
                     userLikedSongs[i] = likedSongs.get(i).getParseSongName();
                 }
                 finalCurrentUser.get(0).setLikedSongs(userLikedSongs);
-                //finalCurrentUser.get(0).setUserGenres();
                 finalCurrentUser.get(0).saveInBackground(new SaveCallback() {
                     @Override
                     public void done(ParseException e) {
@@ -121,15 +130,66 @@ public class ProfileFragment extends Fragment {
                     }
                 });
 
-
                 adapter.notifyDataSetChanged();
 
             }
         });
 
+        ItemTouchHelper itemTouchHelper = new ItemTouchHelper(simpleCallback);
+        itemTouchHelper.attachToRecyclerView(rvLikedSongs);
+
+
 
 
     }
+
+    ItemTouchHelper.SimpleCallback simpleCallback = new ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.LEFT) {
+        @Override
+        public boolean onMove(@NonNull RecyclerView recyclerView, @NonNull RecyclerView.ViewHolder viewHolder, @NonNull RecyclerView.ViewHolder target) {
+            return false;
+        }
+
+        @Override
+        public void onSwiped(@NonNull RecyclerView.ViewHolder viewHolder, int direction) {
+            int position = viewHolder.getAdapterPosition();
+            switch (direction) {
+                case ItemTouchHelper.LEFT:
+
+                    //remove song object from parse as well
+                    ParseQuery<Song> query = ParseQuery.getQuery(Song.class);
+                    query.whereEqualTo("uri", likedSongs.get(position).getParseSongUri());
+                    List<SpotifyUser> currentUser = new ArrayList<>();
+                    try {
+                        Song song = query.find().get(0);
+                        song.deleteInBackground(new DeleteCallback() {
+                            @Override
+                            public void done(ParseException e) {
+                                Toast.makeText(getContext(), "deleted from parse", Toast.LENGTH_LONG).show();
+                            }
+                        });
+                    } catch (ParseException e) {
+                        e.printStackTrace();
+                    }
+                    likedSongs.remove(position);
+                    adapter.notifyItemRemoved(position);
+                    break;
+                case ItemTouchHelper.RIGHT:
+                    break;
+            }
+        }
+
+        @Override
+        public void onChildDraw(@NonNull Canvas c, @NonNull RecyclerView recyclerView, @NonNull RecyclerView.ViewHolder viewHolder, float dX, float dY, int actionState, boolean isCurrentlyActive) {
+
+            new RecyclerViewSwipeDecorator.Builder(c, recyclerView, viewHolder, dX, dY, actionState, isCurrentlyActive)
+                    .addSwipeLeftBackgroundColor(ContextCompat.getColor(getContext(), R.color.red))
+                    .addSwipeLeftActionIcon(R.drawable.ic_baseline_playlist_remove_24)
+                    .create()
+                    .decorate();
+
+            super.onChildDraw(c, recyclerView, viewHolder, dX, dY, actionState, isCurrentlyActive);
+        }
+    };
 
 
 }

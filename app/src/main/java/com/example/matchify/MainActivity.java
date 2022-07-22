@@ -26,8 +26,8 @@ import android.widget.Toast;
 
 import com.example.matchify.fragments.DiscoverFragment;
 import com.example.matchify.fragments.MatchesFragment;
+import com.example.matchify.fragments.PreferenceDialogFragment;
 import com.example.matchify.fragments.ProfileFragment;
-import com.example.matchify.models.Song;
 import com.example.matchify.models.SpotifyUser;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationCallback;
@@ -37,15 +37,10 @@ import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
-import com.parse.FindCallback;
-import com.parse.GetCallback;
 import com.parse.LogInCallback;
-import com.parse.ParseAnonymousUtils;
 import com.parse.ParseException;
 import com.parse.ParseGeoPoint;
-import com.parse.ParseObject;
 import com.parse.ParseQuery;
-import com.parse.ParseRelation;
 import com.parse.ParseUser;
 import com.parse.SaveCallback;
 import com.parse.SignUpCallback;
@@ -54,17 +49,16 @@ import com.spotify.android.appremote.api.Connector;
 import com.spotify.android.appremote.api.SpotifyAppRemote;
 
 import com.spotify.sdk.android.auth.AuthorizationClient;
+import com.spotify.sdk.android.auth.AuthorizationRequest;
+import com.spotify.sdk.android.auth.AuthorizationResponse;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import kaaes.spotify.webapi.android.SpotifyApi;
 import kaaes.spotify.webapi.android.SpotifyService;
 import kaaes.spotify.webapi.android.models.Artist;
 import kaaes.spotify.webapi.android.models.Pager;
-import kaaes.spotify.webapi.android.models.SavedTrack;
-import kaaes.spotify.webapi.android.models.SeedsGenres;
 import kaaes.spotify.webapi.android.models.Track;
 import kaaes.spotify.webapi.android.models.UserPrivate;
 import retrofit.Callback;
@@ -210,9 +204,6 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
-    public boolean userExists(SpotifyUser user, String userID) {
-        return true;
-    }
 
     public boolean onCreateOptionsMenu(Menu menu) {
         Log.d(TAG, "menu inflated");
@@ -224,29 +215,31 @@ public class MainActivity extends AppCompatActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
 
         if (item.getItemId() == R.id.buttonLogout) {
-            Toast.makeText(MainActivity.this, "logout selected!", Toast.LENGTH_SHORT).show();
             onLogOutButton();
             finish();
         }
-        if (item.getItemId() == R.id.chatButton) {
-            Toast.makeText(MainActivity.this, "chat selected!", Toast.LENGTH_SHORT).show();
-            Intent intent = new Intent(this, ChatActivity.class);
-            startActivityForResult(intent, REQUEST_CODE);
-
+        if (item.getItemId() == R.id.buttonPrefs) {
+            showPrefsDialog();
         }
 
         return super.onOptionsItemSelected(item);
     }
+    private void showPrefsDialog() {
+        FragmentManager fm = getSupportFragmentManager();
+        PreferenceDialogFragment preferenceDialogFragment = PreferenceDialogFragment.newInstance("make your choices");
+        preferenceDialogFragment.show(fm, "activity_preference");
+
+    }
 
     private void onLogOutButton() {
-        AuthorizationClient.clearCookies(MainActivity.this);
-        //ParseUser.getCurrentUser().logOut();
-        // navigate back to the login screen
-        Intent i = new Intent(MainActivity.this, LoginActivity.class);
-        //make sure the back button won't work
-        i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP); // this makes sure the Back button won't work
-        i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK); // same as above
-        startActivity(i);
+
+        AuthorizationRequest.Builder builder = new AuthorizationRequest.Builder(CLIENT_ID, AuthorizationResponse.Type.TOKEN, REDIRECT_URI);
+
+        builder.setScopes(new String[]{"streaming", "user-read-email", "user-read-email", "user-read-private", "app-remote-control", "user-top-read", "user-library-read"} );
+        builder.setShowDialog(true);
+        AuthorizationRequest request = builder.build();
+
+        AuthorizationClient.openLoginInBrowser(this, request);
     }
 
     private void setServiceApi() {
@@ -343,7 +336,7 @@ public class MainActivity extends AppCompatActivity {
                                     }
                                 }
                             });
-                            //login(username, USER_PASSWORD);
+                            login(username, USER_PASSWORD);
                         } else {
                             // Sign up didn't succeed. Look at the ParseException to figure out what went wrong
                             Log.e(TAG, "Sign up Error. Username: " + username + " Password: " + USER_PASSWORD, e);
@@ -376,17 +369,17 @@ public class MainActivity extends AppCompatActivity {
                             requestNewLocationData();
                         } else {
                             ParseGeoPoint userLocation = new ParseGeoPoint(location.getLatitude(), location.getLongitude());
-                            try {
-                                getCurrentSpotifyUser().get(0).setUserLocation(userLocation);
-                                getCurrentSpotifyUser().get(0).saveInBackground(new SaveCallback() {
-                                    @Override
-                                    public void done(ParseException e) {
-                                        Log.e(TAG, "!!!! LOCATION SAVED");
-                                    }
-                                });
-                            } catch (ParseException e) {
-                                e.printStackTrace();
-                            }
+//                            try {
+//                                getCurrentSpotifyUser().get(0).setUserLocation(userLocation);
+//                                getCurrentSpotifyUser().get(0).saveInBackground(new SaveCallback() {
+//                                    @Override
+//                                    public void done(ParseException e) {
+//                                        Log.e(TAG, "!!!! LOCATION SAVED");
+//                                    }
+//                                });
+//                            } catch (ParseException e) {
+//                                e.printStackTrace();
+//                            }
 
 
                         }

@@ -1,6 +1,6 @@
 package com.example.matchify.models;
 
-import com.klinker.android.link_builder.Link;
+
 import com.parse.ParseClassName;
 import com.parse.ParseObject;
 
@@ -14,7 +14,8 @@ public class Message extends ParseObject {
 
     public static final int MessageOutgoing = 0;
     public static final int MessageIncoming = 1;
-    public static final int MessageSongWidget = 2;
+    public static final int IncomingMessageSongWidget = 2;
+    public static final int OutgoingMessageSongWidget = 3;
 
     private int viewType;
     String text;

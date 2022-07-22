@@ -1,56 +1,68 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!-- res/layout/message_incoming.xml -->
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
     xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="400dp"
-    android:layout_height="100dp"
-    android:layout_margin="5dp"
-    android:background="#3F51B5"
-    android:clickable="true">
+    android:clipToPadding="false"
+    android:paddingVertical="10dp"
+    android:paddingLeft="60dp"
+    android:paddingRight="15dp">
 
     <ImageView
-        android:id="@+id/likedAlbumCover"
-        android:layout_width="83dp"
-        android:layout_height="match_parent"
-        android:contentDescription="TODO"
-        tools:srcCompat="@drawable/tame_impala" />
+        android:id="@+id/ivProfileMe"
+        android:layout_width="64dp"
+        android:layout_height="64dp"
+        android:layout_alignParentRight="true"
+        android:contentDescription="@string/profile_me"
+        android:src="@mipmap/ic_launcher" />
 
-    <TextView
-        android:id="@+id/likedTrackName"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentTop="true"
-        android:layout_marginStart="25dp"
-        android:layout_marginTop="20dp"
-        android:layout_toEndOf="@+id/likedAlbumCover"
-        android:fontFamily="@font/alata"
-        android:text="@string/textview"
-        android:textColor="#E6DFDF"
-        android:textSize="16sp"
-        tools:text="Is It True" />
+    <RelativeLayout
+        android:layout_width="310dp"
+        android:layout_height="73dp"
+        android:layout_marginRight="8dp"
+        android:layout_toLeftOf="@+id/ivProfileMe"
+        android:background="#673AB7"
+        android:clickable="true">
 
-    <TextView
-        android:id="@+id/outgoingMessage"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
-        android:layout_marginStart="21dp"
-        android:layout_marginBottom="16dp"
-        android:layout_toEndOf="@+id/likedAlbumCover"
-        android:fontFamily="@font/alata"
-        android:text="TextView"
-        android:textColor="#E6DFDF"
-        android:textSize="16sp"
-        tools:text="Tame Impala" />
+        <ImageView
+            android:id="@+id/likedAlbumCover"
+            android:layout_width="62dp"
+            android:layout_height="match_parent"
+            android:layout_alignParentStart="true"
+            android:layout_alignParentBottom="true"
+            android:layout_marginStart="6dp"
+            android:layout_marginBottom="0dp"
+            android:contentDescription="TODO"
+            tools:srcCompat="@drawable/tame_impala" />
 
-    <Button
-        android:id="@+id/buttonAdd"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentEnd="true"
-        android:layout_centerVertical="true"
-        android:layout_marginEnd="24dp"
-        android:background="#A54444"
-        android:text="ADD" />
+        <TextView
+            android:id="@+id/likedTrackName"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentTop="true"
+            android:layout_marginStart="15dp"
+            android:layout_marginTop="2dp"
+            android:layout_toEndOf="@+id/likedAlbumCover"
+            android:fontFamily="@font/alata"
+            android:text="@string/textview"
+            android:textColor="#E6DFDF"
+            android:textSize="16sp"
+            tools:text="Is It True" />
 
+        <TextView
+            android:id="@+id/outgoingMessage"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
+            android:layout_marginStart="14dp"
+            android:layout_marginBottom="9dp"
+            android:layout_toEndOf="@+id/likedAlbumCover"
+            android:fontFamily="@font/alata"
+            android:text="TextView"
+            android:textColor="#E6DFDF"
+            android:textSize="16sp"
+            tools:text="Tame Impala" />
+
+    </RelativeLayout>
 </RelativeLayout>

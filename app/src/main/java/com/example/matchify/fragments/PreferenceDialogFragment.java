@@ -1,34 +1,28 @@
-package com.example.matchify;
-
-import static com.parse.ParseUser.getCurrentUser;
+package com.example.matchify.fragments;
 
 import android.content.Context;
-import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.SeekBar;
 import android.widget.TextView;
-import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.appcompat.app.AppCompatActivity;
+import androidx.fragment.app.DialogFragment;
 
-import com.example.matchify.fragments.ProfileFragment;
-import com.example.matchify.models.SpotifyUser;
+import com.example.matchify.R;
 import com.parse.ParseException;
-import com.parse.ParseQuery;
-import com.parse.ParseUser;
 import com.parse.SaveCallback;
 
-import java.util.ArrayList;
-import java.util.List;
 import static com.example.matchify.MainActivity.currentSpotifyUser;
 
 
-public class PreferenceActivity extends AppCompatActivity {
+public class PreferenceDialogFragment extends DialogFragment {
 
     public static final String TAG = "PreferenceActivity";
     public static final int MAX_AGE = 100;
@@ -45,21 +39,39 @@ public class PreferenceActivity extends AppCompatActivity {
     Button savePreferences;
     Context context;
 
+
+    public PreferenceDialogFragment() {
+        // Empty constructor required for DialogFragment
+    }
+
+    public static PreferenceDialogFragment newInstance(String title) {
+        PreferenceDialogFragment preferenceDialogFragment = new PreferenceDialogFragment();
+        Bundle args = new Bundle();
+        args.putString("make your choices", title);
+        preferenceDialogFragment.setArguments(args);
+        return preferenceDialogFragment;
+    }
+
+    @Nullable
     @Override
-    protected void onCreate(@Nullable Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_preference);
+    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+        return inflater.inflate(R.layout.preference_dialog, container, false);
+    }
 
-        seekBarAge = findViewById(R.id.seekBarAge);
-        titleAge = findViewById(R.id.titleAge);
-        titleAgeRange = findViewById(R.id.titleAgeRange);
-        inputAge = findViewById(R.id.etUserAge);
-        displayAgeRange = findViewById(R.id.chosenAge);
+    @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
 
-        displayLocation = findViewById(R.id.chosenLocation);
-        titleLocation = findViewById(R.id.titleLocation);
-        seekBarLocation = findViewById(R.id.seekBarLocation);
-        savePreferences = findViewById(R.id.buttonSavePrefs);
+        seekBarAge = view.findViewById(R.id.seekBarAge);
+        titleAge = view.findViewById(R.id.titleAge);
+        titleAgeRange = view.findViewById(R.id.titleAgeRange);
+        inputAge = view.findViewById(R.id.etUserAge);
+        displayAgeRange = view.findViewById(R.id.chosenAge);
+
+        displayLocation = view.findViewById(R.id.chosenLocation);
+        titleLocation = view.findViewById(R.id.titleLocation);
+        seekBarLocation = view.findViewById(R.id.seekBarLocation);
+        savePreferences = view.findViewById(R.id.buttonSavePrefs);
 
         seekBarAge.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
@@ -72,7 +84,7 @@ public class PreferenceActivity extends AppCompatActivity {
                         Log.e(TAG, "age range successfully saved to PARSE");
                     }
                 });
-                //save age range to parse
+
 
             }
             @Override
@@ -112,14 +124,14 @@ public class PreferenceActivity extends AppCompatActivity {
                     }
                 });
 
+                dismiss();
 
 
 
             }
         });
-
-
-
     }
+
+
 
 }

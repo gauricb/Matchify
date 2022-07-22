@@ -3,6 +3,8 @@ package com.example.matchify;
 import static com.example.matchify.MainActivity.spotifyService;
 
 import android.content.Intent;
+import android.graphics.Color;
+import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -37,6 +39,8 @@ public class LoginActivity extends AppCompatActivity {
         setContentView(R.layout.activity_login);
         Button buttonLogin = findViewById(R.id.buttonLogin);
         Button buttonSignUp = findViewById(R.id.buttonSignUp);
+        buttonLogin.setBackgroundColor(getResources().getColor(R.color.teal_700));
+        buttonLogin.setTextColor(getResources().getColor(R.color.black));
         buttonLogin.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -55,24 +59,28 @@ public class LoginActivity extends AppCompatActivity {
 
     private void openLoginWindow() {
         AuthorizationRequest.Builder builder = new AuthorizationRequest.Builder(CLIENT_ID, AuthorizationResponse.Type.TOKEN, REDIRECT_URI);
-        builder.setScopes(new String[]{"streaming", "user-read-email", "user-read-email", "user-read-private", "app-remote-control", "user-top-read", "user-library-read"} );
-        AuthorizationRequest request = builder.build();
 
-        AuthorizationClient.openLoginActivity(this, REQUEST_CODE, request);
+        builder.setScopes(new String[]{"streaming", "user-read-email", "user-read-email", "user-read-private", "app-remote-control", "user-top-read", "user-library-read"} );
+        builder.setShowDialog(true);
+        AuthorizationRequest request = builder.build();
+        //AuthorizationClient.openLoginActivity(this, REQUEST_CODE, request);
+
+        AuthorizationClient.openLoginInBrowser(this, request);
     }
 
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
 
-        if(requestCode == REQUEST_CODE) {
-            AuthorizationResponse response = AuthorizationClient.getResponse(resultCode, data);
+    @Override
+    protected void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
+
+        Uri uri = intent.getData();
+        if (uri != null) {
+            AuthorizationResponse response = AuthorizationResponse.fromUri(uri);
 
             switch (response.getType()) {
-                // Response was successful and contains a token
                 case TOKEN:
                     Log.e(TAG, "Auth Token is: " + response.getAccessToken());
-                    Intent intent = new Intent(LoginActivity.this, MainActivity.class);
+                    intent = new Intent(LoginActivity.this, MainActivity.class);
                     intent.putExtra(AUTH_TOKEN, response.getAccessToken());
                     startActivity(intent);
                     finish();
@@ -85,5 +93,6 @@ public class LoginActivity extends AppCompatActivity {
 
             }
         }
+
     }
 }

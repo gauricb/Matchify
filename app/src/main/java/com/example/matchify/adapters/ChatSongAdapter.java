@@ -24,8 +24,7 @@ import com.example.matchify.models.Match;
 import com.example.matchify.models.Message;
 import com.example.matchify.models.Song;
 import com.example.matchify.models.SpotifyUser;
-import com.klinker.android.link_builder.Link;
-import com.klinker.android.link_builder.LinkBuilder;
+
 import com.parse.ParseException;
 import com.parse.SaveCallback;
 

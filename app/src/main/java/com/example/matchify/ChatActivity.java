@@ -172,8 +172,7 @@ public class ChatActivity extends AppCompatActivity {
                     @Override
                     public void done(ParseException e) {
                         if (e == null) {
-                            Toast.makeText(ChatActivity.this, "Successfully created message on Parse",
-                                    Toast.LENGTH_SHORT).show();
+                            Log.e(TAG, "saved message", e);
                         } else {
                             Log.e(TAG, "Failed to save message", e);
                         }
@@ -195,6 +194,7 @@ public class ChatActivity extends AppCompatActivity {
         FragmentManager fm = getSupportFragmentManager();
         SongDialogFragment songDialogFragment = SongDialogFragment.newInstance("Select Song");
         songDialogFragment.show(fm, "song_dialog_box");
+
     }
 
     void refreshMessages() {
@@ -210,9 +210,7 @@ public class ChatActivity extends AppCompatActivity {
         query.orderByDescending("createdAt");
         // TODO QUERY ONLY SENDER AND RECEIVER'S MESSAGES
 //        query.whereEqualTo("spotifyUserSender", spotifySender);
-//        query.whereEqualTo("spotifyUserReceiver", spotifySender);
-//        query.whereEqualTo("spotifyUserSender", spotifyReceiver);
-//        query.whereEqualTo("spotifyUserReceiver", spotifySender);
+        // what the fuck am i supposed to do!!!!!!
 
         // Execute query to fetch all messages from Parse asynchronously
         // This is equivalent to a SELECT query with SQL

@@ -1,17 +1,16 @@
 package com.example.matchify.adapters;
 
-import static com.example.matchify.MainActivity.currentSpotifyUser;
-import static com.example.matchify.MainActivity.mSpotifyAppRemote;
+import static com.example.matchify.models.Message.IncomingMessageSongWidget;
 import static com.example.matchify.models.Message.MessageIncoming;
 import static com.example.matchify.models.Message.MessageOutgoing;
-import static com.example.matchify.models.Message.MessageSongWidget;
+import static com.example.matchify.models.Message.OutgoingMessageSongWidget;
 
 import android.content.Context;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -20,14 +19,12 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
-import com.example.matchify.ChatActivity;
 import com.example.matchify.DoubleClick;
 import com.example.matchify.R;
 import com.example.matchify.models.Message;
 import com.example.matchify.models.Song;
 import com.example.matchify.models.SpotifyUser;
 import com.parse.ParseException;
-import com.parse.ParseUser;
 import com.parse.SaveCallback;
 import com.spotify.android.appremote.api.SpotifyAppRemote;
 
@@ -39,6 +36,8 @@ public class CopyChatAdapter extends RecyclerView.Adapter{
     private Context mContext;
     private SpotifyUser sender;
     public static final String TAG = "CopyChatAdapter";
+    private String username = "";
+
 
     SpotifyAppRemote mSpotifyAppRemote;
 
@@ -53,13 +52,20 @@ public class CopyChatAdapter extends RecyclerView.Adapter{
     public int getItemViewType(int position) {
         Message message = messages.get(position);
 
-        if (message.getBody() == null) {
-            return MessageSongWidget;
+        if (message.getBody() == null  && message.getSender().getObjectId().equals(sender.getObjectId())) {
+            return OutgoingMessageSongWidget;
         }
-        else if (message.getBody() != null && message.getSender() == sender){
+        else if(message.getBody() == null  && !message.getSender().getObjectId().equals(sender.getObjectId())) {
+            return IncomingMessageSongWidget;
+
+        }
+        else if (message.getBody() != null && message.getSender().getObjectId().equals(sender.getObjectId())){
+            Log.e(TAG, "current user: " +sender.getUserName());
             return MessageOutgoing;
         }
         else  {
+            boolean cond = message.getBody() != null && message.getSender().getObjectId() == sender.getObjectId();
+            Log.e(TAG, "!" + message.getSender().getObjectId() + "==" + sender.getObjectId() + "so " + cond );
             return MessageIncoming;
         }
 
@@ -72,7 +78,7 @@ public class CopyChatAdapter extends RecyclerView.Adapter{
 
         public IncomingMessageViewHolder(View itemView) {
             super(itemView);
-            imageOther = (ImageView) itemView.findViewById(R.id.ivProfileOther);
+            imageOther = (ImageView) itemView.findViewById(R.id.ivProfileMe);
             body = (TextView) itemView.findViewById(R.id.incomingMessage);
             name = (TextView) itemView.findViewById(R.id.tvName);
         }
@@ -118,24 +124,24 @@ public class CopyChatAdapter extends RecyclerView.Adapter{
 
     }
 
-    public class MessageSongWidgetViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener{
+    public class IncomingMessageSongWidgetViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener{
         private TextView trackName;
         private TextView artistName;
         private ImageView albumCover;
-        private Button addButton;
-
+        private ImageButton addButton;
+        ImageView imageOther;
 
         // button - add to like songs, only visible if you're not user who sent it
         // open song on spotify
         // if this song is not in your liked songs then add it
 
-        public MessageSongWidgetViewHolder(@NonNull View itemView) {
+        public IncomingMessageSongWidgetViewHolder(@NonNull View itemView) {
             super(itemView);
             trackName = itemView.findViewById(R.id.likedTrackName);
             artistName = itemView.findViewById(R.id.outgoingMessage);
             albumCover = itemView.findViewById(R.id.likedAlbumCover);
             addButton = itemView.findViewById(R.id.buttonAdd);
-
+            imageOther = itemView.findViewById(R.id.ivProfileMe);
 
         }
         public void bind(Message song)  {
@@ -144,6 +150,10 @@ public class CopyChatAdapter extends RecyclerView.Adapter{
                 trackName.setText(song.getSongWidget().fetchIfNeeded().getString("songName"));
                 artistName.setText(song.getSongWidget().fetchIfNeeded().getString("artistName"));
                 Glide.with(mContext).load(song.getSongWidget().fetchIfNeeded().getString("albumCover")).into(albumCover);
+                Glide.with(mContext)
+                        .load(song.getSender().fetchIfNeeded().getString("profileImage"))
+                        .circleCrop() // create an effect of a round profile picture
+                        .into(imageOther);
 
             } catch (ParseException e) {
                 Log.v("LOG_TAG", e.toString());
@@ -175,7 +185,7 @@ public class CopyChatAdapter extends RecyclerView.Adapter{
                                 Log.d("liked song saved! ", "mememe");
                             }
                         });
-
+                    addButton.setImageResource(R.drawable.ic_baseline_playlist_add_check_24);
                 }
             });
 
@@ -202,6 +212,67 @@ public class CopyChatAdapter extends RecyclerView.Adapter{
         }
     }
 
+    public class OutgoingMessageSongWidgetViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener{
+        private TextView trackName;
+        private TextView artistName;
+        private ImageView albumCover;
+        private ImageButton playButton;
+        ImageView imageMe;
+
+        // button - add to like songs, only visible if you're not user who sent it
+        // open song on spotify
+        // if this song is not in your liked songs then add it
+
+        public OutgoingMessageSongWidgetViewHolder(@NonNull View itemView) {
+            super(itemView);
+            trackName = itemView.findViewById(R.id.likedTrackName);
+            artistName = itemView.findViewById(R.id.outgoingMessage);
+            albumCover = itemView.findViewById(R.id.likedAlbumCover);
+            imageMe = itemView.findViewById(R.id.ivProfileMe);
+
+        }
+        public void bind(Message song)  {
+
+            try {
+                trackName.setText(song.getSongWidget().fetchIfNeeded().getString("songName"));
+                artistName.setText(song.getSongWidget().fetchIfNeeded().getString("artistName"));
+                Glide.with(mContext).load(song.getSongWidget().fetchIfNeeded().getString("albumCover")).into(albumCover);
+                Glide.with(mContext)
+                        .load(song.getSender().fetchIfNeeded().getString("profileImage"))
+                        .circleCrop() // create an effect of a round profile picture
+                        .into(imageMe);
+
+            } catch (ParseException e) {
+                Log.v("LOG_TAG", e.toString());
+                e.printStackTrace();
+            }
+
+            itemView.setOnClickListener(new DoubleClick() {
+                @Override
+                public void onDoubleClick() {
+                    Toast.makeText(mContext, "Playing song!" + song.getMSongName(),
+                            Toast.LENGTH_SHORT).show();
+                    try {
+                        mSpotifyAppRemote.getPlayerApi().play(song.getSongWidget().fetchIfNeeded().getString("uri"));
+                    }
+                    catch (ParseException e) {
+                        e.printStackTrace();
+                    }
+                }
+            });
+
+        }
+
+        @Override
+        public void onClick(View v) {
+            Toast.makeText(mContext, "song widget clicked",
+                    Toast.LENGTH_SHORT).show();
+        }
+    }
+
+
+
+
     @NonNull
     @Override
     public RecyclerView.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
@@ -212,9 +283,12 @@ public class CopyChatAdapter extends RecyclerView.Adapter{
             case MessageOutgoing:
                 View messageOutgoing = LayoutInflater.from(parent.getContext()).inflate(R.layout.message_outgoing, parent, false);
                 return new OutgoingMessageViewHolder(messageOutgoing);
-            case MessageSongWidget:
-                View messageSongWidget = LayoutInflater.from(parent.getContext()).inflate(R.layout.song_message_outgoing, parent, false);
-                return new MessageSongWidgetViewHolder(messageSongWidget);
+            case IncomingMessageSongWidget:
+                View messageSongWidgetIncoming = LayoutInflater.from(parent.getContext()).inflate(R.layout.song_message_incoming, parent, false);
+                return new IncomingMessageSongWidgetViewHolder(messageSongWidgetIncoming);
+            case OutgoingMessageSongWidget:
+                View messageSongWidgetOutgoing = LayoutInflater.from(parent.getContext()).inflate(R.layout.song_message_outgoing, parent, false);
+                return new OutgoingMessageSongWidgetViewHolder(messageSongWidgetOutgoing);
             default:
                 return null;
         }
@@ -224,14 +298,18 @@ public class CopyChatAdapter extends RecyclerView.Adapter{
     @Override
     public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
         Message message = messages.get(position);
-        if (message.getBody() == null) {
-            ((MessageSongWidgetViewHolder)holder).bind(messages.get(position));
+        if (message.getBody() == null  && message.getSender().getObjectId().equals(sender.getObjectId())) {
+            ((OutgoingMessageSongWidgetViewHolder)holder).bind(messages.get(position));
         }
-        if (message.getBody() != null && message.getSender() == sender){
+        else if(message.getBody() == null  && !message.getSender().getObjectId().equals(sender.getObjectId())) {
+            ((IncomingMessageSongWidgetViewHolder)holder).bind(messages.get(position));
+
+        }
+        else if (message.getBody() != null && message.getSender().getObjectId().equals(sender.getObjectId())){
 
             ((OutgoingMessageViewHolder)holder).bindMessage(messages.get(position));
         }
-        if (message.getBody() != null && message.getSender() != sender) {
+        else  {
 
             ((IncomingMessageViewHolder)holder).bindMessage(messages.get(position));
         }
