@@ -1,41 +1,55 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!-- res/layout/message_incoming.xml -->
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:paddingVertical="10dp"
-    android:paddingLeft="15dp"
-    android:paddingRight="60dp"
-    android:clipToPadding="false">
 
-    <ImageView
-        android:id="@+id/ivProfileMe"
-        android:layout_width="64dp"
-        android:layout_height="64dp"
-        android:layout_alignParentLeft="true"
-        android:contentDescription="@string/profile_other"
-        android:src="@mipmap/ic_launcher" />
+
+<!--<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"-->
+<!--    xmlns:app="http://schemas.android.com/apk/res-auto"-->
+<!--    android:layout_width="match_parent"-->
+<!--    android:layout_height="wrap_content"-->
+<!--    xmlns:tools="http://schemas.android.com/tools"-->
+<!--    android:clipToPadding="false"-->
+<!--    android:paddingVertical="10dp"-->
+<!--    android:paddingLeft="60dp"-->
+<!--    android:paddingRight="15dp">-->
+
+<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="350dp"
+    android:layout_height="wrap_content"
+    app:cardCornerRadius="10dp"
+    app:cardElevation="10dp"
+    app:cardUseCompatPadding="true">
+
 
     <RelativeLayout
-        android:layout_width="310dp"
-        android:layout_height="63dp"
-
-        android:layout_alignLeft="@+id/ivProfileMe"
+        android:layout_width="361dp"
+        android:layout_height="75dp"
         android:layout_centerVertical="true"
-        android:layout_marginLeft="69dp"
+        android:layout_marginLeft="-36dp"
         android:background="#C64F78"
-        android:clickable="true"
-        android:elevation="2dp">
+        android:clickable="true">
+
+        <ImageButton
+            android:id="@+id/messagePlay2"
+            android:layout_width="35dp"
+            android:layout_height="35dp"
+            android:layout_alignParentEnd="true"
+            android:layout_alignParentBottom="true"
+            android:layout_marginEnd="52dp"
+            android:layout_marginBottom="21dp"
+            android:background="@drawable/round_button"
+            android:backgroundTint="@color/orange"
+            app:srcCompat="@drawable/ic_baseline_play_arrow_24"
+            tools:ignore="SpeakableTextPresentCheck" />
 
         <ImageView
             android:id="@+id/likedAlbumCover"
-            android:layout_width="62dp"
+            android:layout_width="75dp"
             android:layout_height="match_parent"
             android:layout_alignParentStart="true"
             android:layout_alignParentBottom="true"
-            android:layout_marginStart="0dp"
+            android:layout_marginStart="35dp"
             android:layout_marginBottom="0dp"
             android:contentDescription="TODO"
             tools:srcCompat="@drawable/tame_impala" />
@@ -45,8 +59,8 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignParentTop="true"
-            android:layout_marginStart="15dp"
-            android:layout_marginTop="2dp"
+            android:layout_marginStart="10dp"
+            android:layout_marginTop="9dp"
             android:layout_toEndOf="@+id/likedAlbumCover"
             android:fontFamily="@font/alata"
             android:text="@string/textview"
@@ -59,8 +73,8 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignParentBottom="true"
-            android:layout_marginStart="14dp"
-            android:layout_marginBottom="9dp"
+            android:layout_marginStart="10dp"
+            android:layout_marginBottom="11dp"
             android:layout_toEndOf="@+id/likedAlbumCover"
             android:fontFamily="@font/alata"
             android:text="TextView"
@@ -69,18 +83,19 @@
             tools:text="Tame Impala" />
 
         <ImageButton
-            android:id="@+id/buttonAdd"
-            android:layout_width="48dp"
-            android:layout_height="wrap_content"
+            android:id="@+id/messageAdd"
+            android:layout_width="35dp"
+            android:layout_height="35dp"
             android:layout_alignParentEnd="true"
             android:layout_alignParentBottom="true"
-            android:layout_marginStart="37dp"
-            android:layout_marginEnd="11dp"
-            android:layout_marginBottom="10dp"
-            android:layout_toEndOf="@+id/outgoingMessage"
-            android:clickable="true"
-            android:contentDescription="@string/track_name"
-            app:srcCompat="@drawable/ic_baseline_playlist_add_24" />
+            android:layout_marginEnd="12dp"
+            android:layout_marginBottom="20dp"
+            android:background="@drawable/round_button"
+            android:backgroundTint="@color/purple_500"
+            app:srcCompat="@drawable/ic_baseline_playlist_add_24"
+            tools:ignore="SpeakableTextPresentCheck" />
 
     </RelativeLayout>
-</RelativeLayout>
+
+</androidx.cardview.widget.CardView>
+<!--</RelativeLayout>-->

@@ -87,6 +87,16 @@ public class MainActivity extends AppCompatActivity {
     public static boolean PREFERENCES_SELECTED = false;
     public static SpotifyUser currentSpotifyUser;
 
+//    if (getCurrentSpotifyUser().get(0) != null)
+//    static {
+//        try {
+//            currentSpotifyUser = getCurrentSpotifyUser().get(0);
+//        } catch (ParseException e) {
+//            e.printStackTrace();
+//        }
+//    }
+
+
     protected void onCreate(Bundle savedInstanceState) {
 
         super.onCreate(savedInstanceState);
@@ -168,20 +178,8 @@ public class MainActivity extends AppCompatActivity {
         Log.d(TAG, "login was selected? " + LOG_IN_SELECTED);
 
 
-        spotifyService.getTrack("5i5fCpsnqDJ9AfeObgd0gW", new Callback<Track>() {
-            @Override
-            public void success(Track track, Response response) {
-                Log.e(TAG, "@@@@@" + track.artists.get(0));
-            }
 
-            @Override
-            public void failure(RetrofitError error) {
-
-            }
-        });
-
-
-        if (LOG_IN_SELECTED == 1) {
+        if (LOG_IN_SELECTED) {
             spotifyService.getMe(new Callback<UserPrivate>() {
                 @Override
                 public void success(UserPrivate userPrivate, Response response) {
@@ -197,7 +195,7 @@ public class MainActivity extends AppCompatActivity {
 
 
 
-        } else if (SIGN_UP_SELECTED == 1) {
+        } else if (SIGN_UP_SELECTED) {
             signUpUser();
         }
 
@@ -233,13 +231,12 @@ public class MainActivity extends AppCompatActivity {
 
     private void onLogOutButton() {
 
-        AuthorizationRequest.Builder builder = new AuthorizationRequest.Builder(CLIENT_ID, AuthorizationResponse.Type.TOKEN, REDIRECT_URI);
+        ParseUser.logOutInBackground();
 
-        builder.setScopes(new String[]{"streaming", "user-read-email", "user-read-email", "user-read-private", "app-remote-control", "user-top-read", "user-library-read"} );
-        builder.setShowDialog(true);
-        AuthorizationRequest request = builder.build();
-
-        AuthorizationClient.openLoginInBrowser(this, request);
+        Intent i = new Intent(this, LoginActivity.class);
+        i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP); // this makes sure the Back button won't work
+        i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK); // same as above
+        startActivity(i);
     }
 
     private void setServiceApi() {
@@ -248,7 +245,8 @@ public class MainActivity extends AppCompatActivity {
         spotifyService = api.getService();
     }
 
-    void login(String username, String password) {
+    private void login(String username, String password) {
+
 
         ParseUser.logInInBackground(username, password, new LogInCallback() {
             @Override
@@ -260,9 +258,22 @@ public class MainActivity extends AppCompatActivity {
                 Log.d(TAG, "logging in this user");
             }
         });
+
+        if (ParseUser.getCurrentUser() != null) {
+            try {
+                currentSpotifyUser = getCurrentSpotifyUser().get(0);
+                Log.e("current user is ", currentSpotifyUser.getUserName());
+            } catch (ParseException e) {
+                e.printStackTrace();
+            }
+        }
+
+
     }
 
     private void signUpUser() {
+
+        ParseUser.logOutInBackground();
 
         spotifyService.getMe(new Callback<UserPrivate>() {
             @Override
@@ -279,17 +290,19 @@ public class MainActivity extends AppCompatActivity {
                 spotifyService.getTopTracks(new Callback<Pager<Track>>() {
                     @Override
                     public void success(Pager<Track> trackPager, Response response) {
-                        String[] tracks = new String[20];
-                        for (int i = 0; i < 20; i++) {
-                            tracks[i] = trackPager.items.get(i).name;
-                        }
-                        spotifyUser.setTopTracks(tracks);
-                        spotifyUser.saveInBackground(new SaveCallback() {
-                            @Override
-                            public void done(ParseException e) {
-                                Log.d(TAG, "user's top tracks saved");
+                        if (trackPager.items.size() != 0) {
+                            String[] tracks = new String[20];
+                            for (int i = 0; i < 20; i++) {
+                                tracks[i] = trackPager.items.get(i).name;
                             }
-                        });
+                            spotifyUser.setTopTracks(tracks);
+                            spotifyUser.saveInBackground(new SaveCallback() {
+                                @Override
+                                public void done(ParseException e) {
+                                    Log.d(TAG, "user's top tracks saved");
+                                }
+                            });
+                        }
 
                     }
 
@@ -302,17 +315,20 @@ public class MainActivity extends AppCompatActivity {
                 spotifyService.getTopArtists(new Callback<Pager<Artist>>() {
                     @Override
                     public void success(Pager<Artist> artistPager, Response response) {
-                        String[] artists = new String[20];
-                        for (int i = 0; i < 20; i++) {
-                            artists[i] = artistPager.items.get(i).name;
-                        }
-                        spotifyUser.setTopArtists(artists);
-                        spotifyUser.saveInBackground(new SaveCallback() {
-                            @Override
-                            public void done(ParseException e) {
-                                Log.d(TAG, "user's top artists saved");
+                        if (artistPager.items.size() != 0) {
+                            String[] artists = new String[20];
+                            for (int i = 0; i < 20; i++) {
+                                artists[i] = artistPager.items.get(i).name;
                             }
-                        });
+                            spotifyUser.setTopArtists(artists);
+                            spotifyUser.saveInBackground(new SaveCallback() {
+                                @Override
+                                public void done(ParseException e) {
+                                    Log.d(TAG, "user's top artists saved");
+                                }
+                            });
+                        }
+
                     }
 
                     @Override
@@ -369,18 +385,16 @@ public class MainActivity extends AppCompatActivity {
                             requestNewLocationData();
                         } else {
                             ParseGeoPoint userLocation = new ParseGeoPoint(location.getLatitude(), location.getLongitude());
-//                            try {
-//                                getCurrentSpotifyUser().get(0).setUserLocation(userLocation);
-//                                getCurrentSpotifyUser().get(0).saveInBackground(new SaveCallback() {
-//                                    @Override
-//                                    public void done(ParseException e) {
-//                                        Log.e(TAG, "!!!! LOCATION SAVED");
-//                                    }
-//                                });
-//                            } catch (ParseException e) {
-//                                e.printStackTrace();
-//                            }
 
+                            if (currentSpotifyUser != null) {
+                                currentSpotifyUser.setUserLocation(userLocation);
+                                currentSpotifyUser.saveInBackground(new SaveCallback() {
+                                    @Override
+                                    public void done(ParseException e) {
+                                        Log.e(TAG, "!!!! LOCATION SAVED");
+                                    }
+                                });
+                            }
 
                         }
                     }
@@ -466,26 +480,18 @@ public class MainActivity extends AppCompatActivity {
 
         ParseQuery<SpotifyUser> spotifyUserParseQuery = ParseQuery.getQuery("SpotifyUser");
         List<SpotifyUser> currentUser = new ArrayList<>();
-
+        Log.e(TAG, "@@@@@" + ParseUser.getCurrentUser());
         spotifyUserParseQuery.whereEqualTo("songUser", ParseUser.getCurrentUser());
 
-        try {
-            currentUser = spotifyUserParseQuery.find();
-        } catch (ParseException e) {
-            e.printStackTrace();
-        }
+
+        currentUser = spotifyUserParseQuery.find();
+        Log.e(TAG, "@@@@@" + currentUser);
+
         return currentUser;
 
     }
-
-    static {
-        try {
-            currentSpotifyUser = getCurrentSpotifyUser().get(0);
-            Log.e("current user is ", currentSpotifyUser.getUserName());
-        } catch (ParseException e) {
-            e.printStackTrace();
-        }
+    public boolean isUserNull() throws ParseException {
+        return getCurrentSpotifyUser().size() == 0;
     }
-
 
 }

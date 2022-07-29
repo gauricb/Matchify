@@ -1,14 +1,19 @@
 package com.example.matchify.fragments;
 
+import static com.example.matchify.MainActivity.currentSpotifyUser;
 import static com.example.matchify.MainActivity.spotifyService;
 
 import android.content.Context;
 import android.graphics.Canvas;
+import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -16,6 +21,7 @@ import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
 import androidx.databinding.DataBindingUtil;
 import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -48,6 +54,7 @@ public class ProfileFragment extends Fragment {
     private RecyclerView rvLikedSongs;
     protected List<Song> likedSongs;
     protected ProfileAdapter adapter;
+    int numSongs = 0;
     public ProfileFragment() {
 
     }
@@ -56,19 +63,18 @@ public class ProfileFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 
+        setHasOptionsMenu(true);
         FragmentProfileBinding binding = DataBindingUtil.inflate(inflater, R.layout.fragment_profile, container, false);
 
-        spotifyService.getMe(new Callback<UserPrivate>() {
-            @Override
-            public void success(UserPrivate userPrivate, Response response) {
-                binding.textViewUsername.setText(userPrivate.display_name);
-                Glide.with(ProfileFragment.this).load(userPrivate.images.get(0).url).into(binding.imageViewProfilePic);
-            }
-            @Override
-            public void failure(RetrofitError error) {
-            }
-        });
+        int numMatches = 0;
 
+
+        if (currentSpotifyUser != null) {
+            binding.textViewUsername.setText(currentSpotifyUser.getUserName());
+            numMatches = currentSpotifyUser.getUserMatches().length();
+            binding.tvNumMatches.setText(Integer.toString(numMatches) + " matches");
+            Glide.with(ProfileFragment.this).load(currentSpotifyUser.getUserImage()).into(binding.imageViewProfilePic);
+        }
 
 
         return binding.getRoot();
@@ -76,11 +82,29 @@ public class ProfileFragment extends Fragment {
     }
 
     @Override
+    public void onPrepareOptionsMenu(@NonNull Menu menu) {
+        super.onPrepareOptionsMenu(menu);
+
+        MenuItem item1 = menu.findItem(R.id.buttonPrefs);
+        if (item1 != null) {
+            item1.setVisible(false);
+        }
+
+        MenuItem item2 = menu.findItem(R.id.buttonGenres);
+        if (item2 != null) {
+            item2.setVisible(false);
+        }
+    }
+
+
+    @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+
+        TextView tvNumSongs = getView().findViewById(R.id.tvNumSongs);
+
+
         rvLikedSongs = view.findViewById(R.id.rvLikedSongs);
-
-
 
         likedSongs = new ArrayList<>();
         adapter = new ProfileAdapter(getContext(), likedSongs);
@@ -117,29 +141,37 @@ public class ProfileFragment extends Fragment {
 
 
                 likedSongs.addAll(objects);
+
+
+                numSongs = likedSongs.size();
+                Log.e(TAG, "likes songs size: " + numSongs);
+                tvNumSongs.setText(Integer.toString(numSongs) + " favorites");
+
                 //add these songs to likedSongs field in current user SpotifyUser
                 String[] userLikedSongs = new String[likedSongs.size()];
                 for (int i = 0; i < userLikedSongs.length; i++) {
                     userLikedSongs[i] = likedSongs.get(i).getParseSongName();
                 }
-                finalCurrentUser.get(0).setLikedSongs(userLikedSongs);
-                finalCurrentUser.get(0).saveInBackground(new SaveCallback() {
-                    @Override
-                    public void done(ParseException e) {
-                        Log.d("liked song saved! ", "******");
-                    }
-                });
+                if (ParseUser.getCurrentUser() != null) {
+                    finalCurrentUser.get(0).setLikedSongs(userLikedSongs);
+                    finalCurrentUser.get(0).saveInBackground(new SaveCallback() {
+                        @Override
+                        public void done(ParseException e) {
+                            Log.d("liked song saved! ", "******");
+                        }
+                    });
+                }
+
 
                 adapter.notifyDataSetChanged();
 
             }
         });
-
+        RecyclerView.ItemDecoration itemDecoration = new DividerItemDecoration(getContext(), DividerItemDecoration.VERTICAL);
+        ((DividerItemDecoration) itemDecoration).setDrawable(new ColorDrawable(getResources().getColor(R.color.grey)));
+        rvLikedSongs.addItemDecoration(itemDecoration);
         ItemTouchHelper itemTouchHelper = new ItemTouchHelper(simpleCallback);
         itemTouchHelper.attachToRecyclerView(rvLikedSongs);
-
-
-
 
     }
 
@@ -155,7 +187,6 @@ public class ProfileFragment extends Fragment {
             switch (direction) {
                 case ItemTouchHelper.LEFT:
 
-                    //remove song object from parse as well
                     ParseQuery<Song> query = ParseQuery.getQuery(Song.class);
                     query.whereEqualTo("uri", likedSongs.get(position).getParseSongUri());
                     List<SpotifyUser> currentUser = new ArrayList<>();
@@ -164,13 +195,16 @@ public class ProfileFragment extends Fragment {
                         song.deleteInBackground(new DeleteCallback() {
                             @Override
                             public void done(ParseException e) {
-                                Toast.makeText(getContext(), "deleted from parse", Toast.LENGTH_LONG).show();
+                                Toast.makeText(getContext(), "Song deleted from liked songs", Toast.LENGTH_LONG).show();
                             }
                         });
                     } catch (ParseException e) {
                         e.printStackTrace();
                     }
                     likedSongs.remove(position);
+                    numSongs = likedSongs.size();
+                    Log.e(TAG, "updated liked song size: " + numSongs);
+                    //tvNumSongs.setText(Integer.toString(numSongs) + " favorites");
                     adapter.notifyItemRemoved(position);
                     break;
                 case ItemTouchHelper.RIGHT:
@@ -183,7 +217,7 @@ public class ProfileFragment extends Fragment {
 
             new RecyclerViewSwipeDecorator.Builder(c, recyclerView, viewHolder, dX, dY, actionState, isCurrentlyActive)
                     .addSwipeLeftBackgroundColor(ContextCompat.getColor(getContext(), R.color.red))
-                    .addSwipeLeftActionIcon(R.drawable.ic_baseline_playlist_remove_24)
+                    .addSwipeLeftActionIcon(R.drawable.ic_baseline_remove_circle_outline_24)
                     .create()
                     .decorate();
 

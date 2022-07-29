@@ -2,22 +2,16 @@
 <menu xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <item
-        android:id="@+id/buttonPrefs"
-        android:icon="@drawable/ic_baseline_settings_suggest_24"
-        android:title="LOGOUT"
-        app:showAsAction="always" />
+
     <item
         android:id="@+id/buttonGenres"
         android:icon="@drawable/ic_music"
         android:title="Item"
         app:showAsAction="always" />
-
     <item
         android:id="@+id/buttonLogout"
         android:icon="@drawable/icon_exit_app"
         android:title="LOGOUT"
         app:showAsAction="always" />
-
 
 </menu>

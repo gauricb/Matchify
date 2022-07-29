@@ -1,36 +1,60 @@
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<?xml version="1.0" encoding="utf-8"?>
+
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:paddingBottom="16dp"
-    android:paddingLeft="16dp"
-    android:paddingRight="16dp"
-    android:paddingTop="16dp"
-    tools:context=".LoginActivity" >
+    android:background="#121640"
+    tools:context=".LoginActivity">
 
 
-    <Button
-        android:id="@+id/buttonSignUp"
-        android:layout_width="327dp"
-        android:layout_height="78dp"
-        android:layout_alignParentTop="true"
-        android:layout_alignParentEnd="true"
-        android:layout_centerHorizontal="true"
-        android:layout_marginTop="569dp"
-        android:layout_marginEnd="25dp"
-        android:text="SIGN UP" />
+    <LinearLayout
+        android:id="@+id/linearLayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="4dp"
+        android:gravity="center"
+        android:orientation="vertical"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.795">
 
-    <Button
-        android:id="@+id/buttonLogin"
-        android:layout_width="327dp"
-        android:layout_height="78dp"
-        android:layout_alignParentTop="true"
-        android:layout_alignParentEnd="true"
-        android:layout_centerHorizontal="true"
-        android:layout_marginTop="488dp"
-        android:layout_marginEnd="27dp"
-        android:background="@color/teal_700"
-        android:text="LOGIN"
-        android:textColor="#000000" />
-</RelativeLayout>
 
+        <Button
+            android:id="@+id/btnLogin"
+            android:layout_width="350dp"
+            android:layout_height="60dp"
+            android:layout_weight="1"
+            android:fontFamily="@font/roboto_medium"
+            android:text="Login" />
+
+        <Button
+            android:id="@+id/btnSignUp"
+            android:layout_width="350dp"
+            android:layout_height="60dp"
+            android:layout_weight="1"
+            android:fontFamily="@font/roboto_medium"
+            android:text="Sign up" />
+
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="412dp"
+        android:layout_height="519dp"
+        android:orientation="vertical"
+        app:layout_constraintBottom_toTopOf="@+id/linearLayout"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <ImageView
+            android:id="@+id/imageView3"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:srcCompat="@drawable/matchify2" />
+    </LinearLayout>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

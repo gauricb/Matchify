@@ -1,6 +1,6 @@
 package com.example.matchify;
 
-import static com.example.matchify.MainActivity.currentSpotifyUser;
+import static com.example.matchify.MainActivity.getCurrentSpotifyUser;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.FragmentManager;
@@ -18,6 +18,7 @@ import com.example.matchify.adapters.CopyChatAdapter;
 import com.example.matchify.fragments.SongDialogFragment;
 import com.example.matchify.models.Message;
 import com.example.matchify.models.SpotifyUser;
+
 import com.parse.FindCallback;
 import com.parse.ParseException;
 import com.parse.ParseQuery;
@@ -74,12 +75,20 @@ public class ChatActivity extends AppCompatActivity {
 
                     public void onConnected(SpotifyAppRemote spotifyAppRemote) {
                         mSpotifyAppRemote = spotifyAppRemote;
-                        Log.d("MainActivity", "Connected! Yay!");
+                        Log.e(TAG, "Connected! Yay!");
                         // Now you can start interacting with App Remote
 
+                        try {
                             startWithCurrentUser();
+                        } catch (ParseException e) {
+                            e.printStackTrace();
+                        }
                         // Load existing messages to begin with
-                        refreshMessages();
+                        try {
+                            refreshMessages();
+                        } catch (ParseException e) {
+                            e.printStackTrace();
+                        }
                         //mSpotifyAppRemote.getPlayerApi().play("spotify:playlist:37i9dQZF1DX2sUQwD7tbmL");
 
                         // Make sure the Parse server is setup to configured for live queries
@@ -123,13 +132,12 @@ public class ChatActivity extends AppCompatActivity {
     }
 
     // Get the userId from the cached currentUser object
-    void startWithCurrentUser() {
+    void startWithCurrentUser() throws ParseException {
         setupMessagePosting();
     }
 
     // Set up button event handler which posts the entered message to Parse
-    void setupMessagePosting() {
-        // Find the text field and button
+    void setupMessagePosting() throws ParseException {
 
         ibSend = (ImageButton) findViewById(R.id.ibSend);
         rvChat = (RecyclerView) findViewById(R.id.rvChat);
@@ -140,20 +148,20 @@ public class ChatActivity extends AppCompatActivity {
         mMessages = new ArrayList<>();
         mFirstLoad = true;
 
-        final SpotifyUser spotifySender = currentSpotifyUser;
+        final SpotifyUser spotifySender = getCurrentSpotifyUser().get(0);
         matchObject = getIntent().getParcelableExtra("MatchObject");
-        //TODO SEND MATCH OBJECT TO CHATSONGADAPTER
 
         final SpotifyUser spotifyReceiver = matchObject;
-        //mAdapter = new ChatAdapter(ChatActivity.this, spotifySender, mMessages);
 
         mAdapter = new CopyChatAdapter(ChatActivity.this, spotifySender, mMessages, mSpotifyAppRemote);
         rvChat.setAdapter(mAdapter);
 
-        // associate the LayoutManager with the RecyclerView
         final LinearLayoutManager linearLayoutManager = new LinearLayoutManager(ChatActivity.this);
         linearLayoutManager.setReverseLayout(true);
         rvChat.setLayoutManager(linearLayoutManager);
+
+        ibSend.setBackgroundColor(getResources().getColor(R.color.teal_700));
+        ibAttach.setBackgroundColor(getResources().getColor(R.color.teal_700));
 
         // When send button is clicked, create message object on Parse
         ibSend.setOnClickListener(new View.OnClickListener() {
@@ -172,7 +180,7 @@ public class ChatActivity extends AppCompatActivity {
                     @Override
                     public void done(ParseException e) {
                         if (e == null) {
-                            Log.e(TAG, "saved message", e);
+                            Log.d(TAG, "saved message", e);
                         } else {
                             Log.e(TAG, "Failed to save message", e);
                         }
@@ -197,8 +205,8 @@ public class ChatActivity extends AppCompatActivity {
 
     }
 
-    void refreshMessages() {
-        final SpotifyUser spotifySender = currentSpotifyUser;
+    void refreshMessages() throws ParseException {
+        final SpotifyUser spotifySender = getCurrentSpotifyUser().get(0);
         matchObject = getIntent().getParcelableExtra("MatchObject");
         final SpotifyUser spotifyReceiver = matchObject;
         // Construct query to execute
@@ -210,7 +218,8 @@ public class ChatActivity extends AppCompatActivity {
         query.orderByDescending("createdAt");
         // TODO QUERY ONLY SENDER AND RECEIVER'S MESSAGES
 //        query.whereEqualTo("spotifyUserSender", spotifySender);
-        // what the fuck am i supposed to do!!!!!!
+//        query.whereEqualTo("spotifyUserReceiver", spotifyReceiver);
+//        query.whereEqualTo()
 
         // Execute query to fetch all messages from Parse asynchronously
         // This is equivalent to a SELECT query with SQL

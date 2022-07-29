@@ -74,5 +74,7 @@ dependencies {
 
     implementation 'com.github.xabaras:RecyclerViewSwipeDecorator:1.4'
 
+    implementation 'com.github.ozgurg:ToggleIconView:2.3.0'
+
 
 }

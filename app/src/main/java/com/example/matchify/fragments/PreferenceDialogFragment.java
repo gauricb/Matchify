@@ -20,7 +20,7 @@ import com.parse.ParseException;
 import com.parse.SaveCallback;
 
 import static com.example.matchify.MainActivity.currentSpotifyUser;
-
+import static com.example.matchify.MainActivity.getCurrentSpotifyUser;
 
 public class PreferenceDialogFragment extends DialogFragment {
 
@@ -57,6 +57,9 @@ public class PreferenceDialogFragment extends DialogFragment {
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         return inflater.inflate(R.layout.preference_dialog, container, false);
     }
+    public boolean isUserNull() throws ParseException {
+        return getCurrentSpotifyUser().size() == 0;
+    }
 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
@@ -77,14 +80,20 @@ public class PreferenceDialogFragment extends DialogFragment {
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
                 displayAgeRange.setText(String.valueOf(progress));
-                currentSpotifyUser.setUserAgeRange(progress);
-                currentSpotifyUser.saveInBackground(new SaveCallback() {
-                    @Override
-                    public void done(ParseException e) {
-                        Log.e(TAG, "age range successfully saved to PARSE");
-                    }
-                });
 
+                Log.e(TAG, "^^^" + currentSpotifyUser);
+
+                if (currentSpotifyUser != null) {
+                    currentSpotifyUser.setUserAgeRange(progress);
+                    currentSpotifyUser.saveInBackground(new SaveCallback() {
+                        @Override
+                        public void done(ParseException e) {
+
+                           Log.e(TAG, "age range successfully saved to PARSE for " + currentSpotifyUser.getUserName());
+
+                        }
+                    });
+                }
 
             }
             @Override
@@ -96,33 +105,44 @@ public class PreferenceDialogFragment extends DialogFragment {
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
                 displayLocation.setText(String.valueOf(progress));
-                currentSpotifyUser.setUserLocationRange(progress);
-                currentSpotifyUser.saveInBackground(new SaveCallback() {
-                    @Override
-                    public void done(ParseException e) {
-                        Log.e(TAG, "location range successfully saved to PARSE");
-                    }
-                });
+
+                if (currentSpotifyUser != null) {
+                    currentSpotifyUser.setUserLocationRange(progress);
+                    currentSpotifyUser.saveInBackground(new SaveCallback() {
+                        @Override
+                        public void done(ParseException e) {
+
+                            Log.e(TAG, "age range successfully saved to PARSE for " + currentSpotifyUser.getUserName());
+
+                        }
+                    });
+                }
+
+
             }
             @Override
             public void onStartTrackingTouch(SeekBar seekBar) {}
             @Override
             public void onStopTrackingTouch(SeekBar seekBar) {}
         });
-
+        savePreferences.setBackgroundColor(getResources().getColor(R.color.pink));
         savePreferences.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 //save input data to Parse for current user
                 int getAge = Integer.parseInt(inputAge.getText().toString());
-                currentSpotifyUser.setUserAge(getAge);
-                currentSpotifyUser.saveInBackground(new SaveCallback() {
-                    @Override
-                    public void done(ParseException e) {
-                        Log.e(TAG, "age successfully saved to PARSE");
 
-                    }
-                });
+                if (currentSpotifyUser != null) {
+                    currentSpotifyUser.setUserAge(getAge);
+                    currentSpotifyUser.saveInBackground(new SaveCallback() {
+                        @Override
+                        public void done(ParseException e) {
+
+                            Log.e(TAG, "age range successfully saved to PARSE for " + currentSpotifyUser.getUserName());
+
+                        }
+                    });
+                }
 
                 dismiss();
 

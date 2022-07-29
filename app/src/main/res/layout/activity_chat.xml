@@ -1,29 +1,36 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:background="@android:color/white"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/rvChat"
-        android:layout_width="wrap_content"
-        android:layout_height="match_parent"
-        android:layout_above="@+id/rlSend"
+        android:layout_width="match_parent"
+        android:layout_height="670dp"
         android:layout_alignParentLeft="true"
         android:layout_alignParentTop="true"
         android:layout_alignParentRight="true"
+        android:layout_marginLeft="0dp"
+        android:layout_marginRight="0dp"
         android:clickable="true"
         android:transcriptMode="alwaysScroll" />
 
-    <RelativeLayout
-        android:id="@+id/rlSend"
+<!--    <RelativeLayout-->
+<!--        android:id="@+id/rlSend"-->
+<!--        android:layout_width="match_parent"-->
+<!--        android:layout_height="wrap_content"-->
+<!--        android:layout_alignParentBottom="true"-->
+<!--        android:paddingLeft="0dp"-->
+<!--        android:paddingTop="5dp"-->
+<!--        android:paddingRight="0dp"-->
+<!--        android:paddingBottom="10dp">-->
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
-        android:paddingLeft="0dp"
-        android:paddingTop="5dp"
-        android:paddingRight="0dp"
-        android:paddingBottom="10dp">
+        android:layout_height="60dp"
+        android:layout_alignParentBottom="true">
 
         <ImageButton
             android:id="@+id/ibAttach"
@@ -31,28 +38,36 @@
             android:layout_height="wrap_content"
             android:layout_alignParentTop="true"
             android:layout_alignParentRight="true"
-            android:layout_marginTop="4dp"
-            android:layout_marginRight="364dp"
             android:contentDescription="@string/send"
             android:gravity="center"
             android:minHeight="48dp"
             android:paddingRight="10dp"
             android:src="@drawable/ic_baseline_attachment_24"
-            android:textSize="18sp" />
+            android:textSize="18sp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toStartOf="@+id/etMessage"
+            app:layout_constraintHorizontal_bias="0.055"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintVertical_bias="0.0" />
 
         <EditText
             android:id="@+id/etMessage"
-            android:layout_width="316dp"
+            android:layout_width="280dp"
             android:layout_height="wrap_content"
             android:layout_alignBottom="@+id/ibSend"
-            android:layout_marginRight="0dp"
-            android:layout_marginBottom="-2dp"
             android:layout_toLeftOf="@+id/ibSend"
             android:gravity="top"
             android:hint="@string/message_hint"
             android:imeOptions="actionSend"
             android:inputType="textShortMessage"
-            android:minHeight="48dp" />
+            android:minWidth="48dp"
+            android:minHeight="48dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintVertical_bias="0.0" />
 
         <ImageButton
             android:id="@+id/ibSend"
@@ -61,9 +76,17 @@
             android:layout_alignParentRight="true"
             android:contentDescription="@string/send"
             android:gravity="center"
+            android:minWidth="48dp"
             android:minHeight="48dp"
             android:paddingRight="10dp"
             android:src="@drawable/ic_baseline_send_24"
-            android:textSize="18sp" />
-    </RelativeLayout>
+            android:textSize="18sp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.851"
+            app:layout_constraintStart_toEndOf="@+id/etMessage"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintVertical_bias="0.0" />
+        <!--    </RelativeLayout>-->
+    </androidx.constraintlayout.widget.ConstraintLayout>
 </RelativeLayout>

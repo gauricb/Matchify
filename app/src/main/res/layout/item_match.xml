@@ -3,18 +3,33 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="70dp">
+    android:layout_height="100dp">
 
-    <ImageView
+
+    <TextView
+        android:id="@+id/tvLocationRange"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:fontFamily="@font/alata"
+        android:text="TextView"
+        android:textColor="@color/grey"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/matchProfilePic"
+        app:layout_constraintTop_toBottomOf="@+id/tvCompatibility"
+        app:layout_constraintVertical_bias="0.058" />
+
+    <de.hdodenhof.circleimageview.CircleImageView
         android:id="@+id/matchProfilePic"
-        android:layout_width="60dp"
-        android:layout_height="62dp"
-        android:layout_marginStart="4dp"
-        android:contentDescription="TODO"
+        android:layout_width="80dp"
+        android:layout_height="80dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="10dp"
+        android:src="@drawable/doggy"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        tools:srcCompat="@drawable/tame_impala" />
+        app:layout_constraintVertical_bias="0.0" />
 
     <TextView
         android:id="@+id/matchName"
@@ -24,34 +39,42 @@
         android:fontFamily="@font/alata"
         android:text="TextView"
         android:textColor="#E6DFDF"
-        android:textSize="16sp"
+        android:textSize="20sp"
+        android:textStyle="bold"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.269"
-        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintHorizontal_bias="0.073"
+        app:layout_constraintStart_toEndOf="@+id/matchProfilePic"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.511"
+        app:layout_constraintVertical_bias="0.133"
         tools:text="Tame Impala" />
-
-    <Button
-        android:id="@+id/buttonChatMatch"
-        android:layout_width="76dp"
-        android:layout_height="48dp"
-        android:layout_marginEnd="24dp"
-        android:text="chat"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.484" />
 
     <TextView
         android:id="@+id/tvCompatibility"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:fontFamily="@font/alata"
+
         android:text="TextView"
+        android:textColor="@color/grey"
         app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/matchProfilePic"
+        app:layout_constraintTop_toBottomOf="@+id/matchName"
+        app:layout_constraintVertical_bias="0.093" />
+
+    <ImageButton
+        android:id="@+id/chatButton"
+        android:layout_width="49dp"
+        android:layout_height="51dp"
+        android:layout_marginEnd="16dp"
+        android:background="@color/darkBlue"
+        android:minHeight="48dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        tools:layout_editor_absoluteX="213dp" />
+        app:srcCompat="@drawable/ic_baseline_chat_bubble_24"
+        tools:ignore="SpeakableTextPresentCheck" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
 

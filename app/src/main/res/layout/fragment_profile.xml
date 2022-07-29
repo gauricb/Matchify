@@ -5,19 +5,51 @@
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    tools:context=".fragments.ProfileFragment"
-    android:background="@color/black"
-    >
+        android:layout_height="match_parent"
+        android:background="@color/darkBlue"
+        tools:context=".fragments.ProfileFragment">
+
+
+        <!--            app:layout_constraintTop_toBottomOf="@+id/imageViewProfilePic" />-->
+
+        <TextView
+            android:id="@+id/tvNumSongs"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="64dp"
+            android:fontFamily="@font/alata"
+            android:text="num Songs"
+            android:textAlignment="viewStart"
+            android:textColor="#BCB7B7"
+            android:textSize="20sp"
+            app:layout_constraintBottom_toTopOf="@+id/rvLikedSongs"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.402"
+            app:layout_constraintStart_toEndOf="@+id/imageViewProfilePic" />
+
+        <TextView
+            android:id="@+id/tvNumMatches"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="32dp"
+            android:fontFamily="@font/alata"
+            android:text="num Matches"
+            android:textAlignment="viewStart"
+            android:textColor="#BCB7B7"
+            android:textSize="20sp"
+            app:layout_constraintBottom_toTopOf="@+id/rvLikedSongs"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.47"
+            app:layout_constraintStart_toEndOf="@+id/imageViewProfilePic" />
 
         <de.hdodenhof.circleimageview.CircleImageView
             android:id="@+id/imageViewProfilePic"
             android:layout_width="120dp"
             android:layout_height="120dp"
-            android:layout_marginTop="16dp"
+            android:layout_marginTop="28dp"
             android:src="@drawable/doggy"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.498"
+            app:layout_constraintHorizontal_bias="0.109"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
@@ -25,22 +57,29 @@
             android:id="@+id/textViewUsername"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginBottom="96dp"
             android:fontFamily="@font/alata"
             android:text="@string/username"
+            android:textAlignment="viewStart"
             android:textColor="@color/white"
             android:textSize="24sp"
+            app:layout_constraintBottom_toTopOf="@+id/rvLikedSongs"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/imageViewProfilePic" />
-
+            app:layout_constraintHorizontal_bias="0.426"
+            app:layout_constraintStart_toEndOf="@+id/imageViewProfilePic" />
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/rvLikedSongs"
-            android:layout_width="408dp"
-            android:layout_height="559dp"
+            android:layout_width="411dp"
+            android:layout_height="557dp"
+            android:layout_marginTop="28dp"
+            android:background="@color/darkBlue"
             app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.0"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/textViewUsername" />
+            app:layout_constraintTop_toBottomOf="@+id/imageViewProfilePic" />
+        <!--            app:layout_constraintTop_toBottomOf="@+id/textViewUsername" -->
+        />
 
 
     </androidx.constraintlayout.widget.ConstraintLayout>

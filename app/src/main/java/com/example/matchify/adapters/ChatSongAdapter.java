@@ -1,6 +1,7 @@
 package com.example.matchify.adapters;
 
 import static com.example.matchify.MainActivity.currentSpotifyUser;
+import static com.example.matchify.MainActivity.getCurrentSpotifyUser;
 
 import android.app.Activity;
 import android.content.Context;
@@ -78,7 +79,7 @@ public class ChatSongAdapter extends RecyclerView.Adapter<ChatSongAdapter.ViewHo
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
             trackName = itemView.findViewById(R.id.likedTrackName);
-            artistName = itemView.findViewById(R.id.outgoingMessage);
+            artistName = itemView.findViewById(R.id.artistName);
             albumCover = itemView.findViewById(R.id.likedAlbumCover);
 
             Activity activity = unwrap(itemView.getContext());
@@ -90,12 +91,13 @@ public class ChatSongAdapter extends RecyclerView.Adapter<ChatSongAdapter.ViewHo
                     if (position != RecyclerView.NO_POSITION) {
                         Song song = likedSongs.get(position);
 
-                        Toast.makeText(context, "song name is " + song.getParseSongName(), Toast.LENGTH_LONG).show();
+                        //Toast.makeText(context, "song name is " + song.getParseSongName(), Toast.LENGTH_LONG).show();
 
                         Message message = new Message();
                         message.setSongWidget(song);
 
-                        final SpotifyUser spotifySender = currentSpotifyUser;
+                        final SpotifyUser spotifySender;
+
 
                         SpotifyUser receiver = activity.getIntent().getParcelableExtra("MatchObject");
                         try {
@@ -104,20 +106,24 @@ public class ChatSongAdapter extends RecyclerView.Adapter<ChatSongAdapter.ViewHo
                             e.printStackTrace();
                         }
 
-                        message.setSender(spotifySender);
+                        try {
+                            spotifySender = getCurrentSpotifyUser().get(0);
+                            message.setSender(spotifySender);
+                            message.setReceiver(receiver);
+                            message.saveInBackground(new SaveCallback() {
+                                @Override
+                                public void done(ParseException e) {
+                                    if (e == null) {
 
-                        message.setReceiver(receiver);
-
-                        message.saveInBackground(new SaveCallback() {
-                            @Override
-                            public void done(ParseException e) {
-                                if (e == null) {
-
-                                } else {
-                                    Log.e(TAG, "Failed to save message", e);
+                                    } else {
+                                        Log.e(TAG, "Failed to save message", e);
+                                    }
                                 }
-                            }
-                        });
+                            });
+
+                        } catch (ParseException e) {
+                            e.printStackTrace();
+                        }
 
 
                     }

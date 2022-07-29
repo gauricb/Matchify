@@ -1,11 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+
+
+
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="400dp"
     android:layout_height="100dp"
     android:layout_margin="5dp"
     android:clickable="true">
+
 
     <ImageView
         android:id="@+id/likedAlbumCover"
@@ -19,27 +24,39 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentTop="true"
-        android:layout_marginStart="25dp"
-        android:layout_marginTop="20dp"
+        android:layout_marginStart="21dp"
+        android:layout_marginTop="25dp"
         android:layout_toEndOf="@+id/likedAlbumCover"
         android:fontFamily="@font/alata"
         android:text="@string/textview"
         android:textColor="#E6DFDF"
         android:textSize="16sp"
+        android:textStyle="bold"
         tools:text="Is It True" />
 
     <TextView
-        android:id="@+id/outgoingMessage"
+        android:id="@+id/artistName"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
         android:layout_marginStart="21dp"
-        android:layout_marginBottom="16dp"
+        android:layout_marginBottom="20dp"
         android:layout_toEndOf="@+id/likedAlbumCover"
         android:fontFamily="@font/alata"
         android:text="TextView"
-        android:textColor="#E6DFDF"
+        android:textColor="@color/grey"
         android:textSize="16sp"
         tools:text="Tame Impala" />
+
+    <ImageButton
+        android:id="@+id/rvPlaySong"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:layout_alignParentEnd="true"
+        android:layout_centerVertical="true"
+        android:layout_marginEnd="28dp"
+        android:background="@drawable/round_button"
+        android:backgroundTint="@color/pink"
+        app:srcCompat="@drawable/ic_baseline_play_arrow_24" />
 
 </RelativeLayout>

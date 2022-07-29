@@ -36,7 +36,10 @@ public class SpotifyUser extends ParseObject {
     public static final String USER_AGE = "myAge";
     public static final String USER_AGE_RANGE = "ageRange";
     public static final String USER_LOCATION_RANGE = "locationRange";
-    public static final String USER_GENRES = "genres";
+    public static final String USER_MATCHES = "matches";
+    public static final String MATCH_COMPAT = "compatibilityPercent";
+    public static final String MATCH_DISTANCE = "distanceFromMatch";
+    public static final String CHOSEN_GENRES = "chosenGenres";
 
     public String getUserName() {
         return getString(USER_NAME);
@@ -70,13 +73,6 @@ public class SpotifyUser extends ParseObject {
         return getJSONArray(LIKED_SONGS);
     }
 
-    public void setUserGenres(String[] genres) {
-        put(USER_GENRES, Arrays.asList(genres));
-    }
-    public JSONArray getUserGenres() {
-        return getJSONArray(USER_GENRES);
-    }
-
     public ParseGeoPoint getUserLocation() {
         return getParseGeoPoint(USER_LOCATION);
     }
@@ -90,6 +86,7 @@ public class SpotifyUser extends ParseObject {
     public void setUserAge(int userAge) {
         put(USER_AGE, userAge);
     }
+
     public int getUserAgeRange() {
         return getInt(USER_AGE_RANGE);
     }
@@ -102,6 +99,34 @@ public class SpotifyUser extends ParseObject {
     }
     public void setUserLocationRange(int userLocationRange) {
         put(USER_LOCATION_RANGE, userLocationRange);
+    }
+
+    public void setUserMatches(String[] matches) {
+        put(USER_MATCHES, Arrays.asList(matches));
+    }
+    public JSONArray getUserMatches() {
+        return getJSONArray(USER_MATCHES);
+    }
+
+    public void setChosenGenres(String[] chosenGenres) {
+        put(CHOSEN_GENRES, Arrays.asList(chosenGenres));
+    }
+    public JSONArray getChosenGenres() {
+        return getJSONArray(CHOSEN_GENRES);
+    }
+
+    public void setMatchCompat(String matchCompat) {
+        put(MATCH_COMPAT, matchCompat);
+    }
+    public String getMatchCompat() {
+        return getString(MATCH_COMPAT);
+    }
+
+    public void setMatchDistance(String matchDistance) {
+        put(MATCH_DISTANCE, matchDistance);
+    }
+    public String getMatchDistance() {
+        return getString(MATCH_DISTANCE);
     }
 
 

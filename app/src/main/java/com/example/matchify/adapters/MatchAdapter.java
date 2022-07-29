@@ -9,6 +9,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -56,17 +57,20 @@ public class MatchAdapter extends RecyclerView.Adapter<MatchAdapter.ViewHolder> 
     class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
 
         private ImageView matchPicture;
+        private ImageButton chatButton;
         private TextView matchName;
-        private Button chatButton;
+        private TextView distance;
         private TextView compatibilityPercent;
+
 
 
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
             matchName = itemView.findViewById(R.id.matchName);
             matchPicture = itemView.findViewById(R.id.matchProfilePic);
-            chatButton = itemView.findViewById(R.id.buttonChatMatch);
             compatibilityPercent = itemView.findViewById(R.id.tvCompatibility);
+            distance = itemView.findViewById(R.id.tvLocationRange);
+            chatButton = itemView.findViewById(R.id.chatButton);
 
         }
 
@@ -79,12 +83,10 @@ public class MatchAdapter extends RecyclerView.Adapter<MatchAdapter.ViewHolder> 
 
         public void bind(SpotifyUser match) {
             matchName.setText(match.getUserName());
-            Activity activity = unwrap(itemView.getContext());
-            //get compatibility percentage from MatchFragment here
-            String compat = activity.getIntent().getStringExtra("compat");
-            Log.e(TAG, "$$$$$$$" + compat);
-            compatibilityPercent.setText(compat + "%");
+            compatibilityPercent.setText(match.getMatchCompat() + "%");
+            distance.setText(match.getMatchDistance() + " miles");
             Glide.with(context).load(match.getUserImage()).into(matchPicture);
+
             chatButton.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {

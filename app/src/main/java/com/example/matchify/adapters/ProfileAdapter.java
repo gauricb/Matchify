@@ -6,6 +6,7 @@ import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -55,30 +56,38 @@ public class ProfileAdapter extends RecyclerView.Adapter<ProfileAdapter.ViewHold
         private TextView trackName;
         private TextView artistName;
         private ImageView albumCover;
+        private ImageButton playButton;
+        private boolean paused = true;
 
 
 
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
             trackName = itemView.findViewById(R.id.likedTrackName);
-            artistName = itemView.findViewById(R.id.outgoingMessage);
+            artistName = itemView.findViewById(R.id.artistName);
             albumCover = itemView.findViewById(R.id.likedAlbumCover);
+            playButton = itemView.findViewById(R.id.rvPlaySong);
 
-            itemView.setOnClickListener(new View.OnClickListener() {
+            playButton.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
                     int position = getAdapterPosition();
-                    //make sure the position actually exists in the view
-                    if (position != RecyclerView.NO_POSITION) {
-                        Song song = likedSongs.get(position);
-                        Toast.makeText(context, "song name is " + song.getParseSongName(), Toast.LENGTH_LONG).show();
-
+                    Song song = likedSongs.get(position);
+                    if (paused) {
+                        playButton.setImageResource(R.drawable.ic_baseline_pause_24);
                         mSpotifyAppRemote.getPlayerApi().play(song.getParseSongUri());
-
-
+                        paused = false;
                     }
+                    else {
+                        playButton.setImageResource(R.drawable.ic_baseline_play_arrow_24);
+                        mSpotifyAppRemote.getPlayerApi().pause();
+                        paused = true;
+                    }
+
+
                 }
             });
+
         }
 
         public void bind(Song song) {

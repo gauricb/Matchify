@@ -14,6 +14,7 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.matchify.models.SpotifyUser;
+import com.parse.ParseUser;
 import com.spotify.sdk.android.auth.AuthorizationClient;
 import com.spotify.sdk.android.auth.AuthorizationRequest;
 import com.spotify.sdk.android.auth.AuthorizationResponse;
@@ -30,29 +31,35 @@ public class LoginActivity extends AppCompatActivity {
     private static final String REDIRECT_URI = "capstone-app-login://callback";
     private static final String CLIENT_ID = "33a4d498feb4475c902c47154d370dc2";
     public static final String AUTH_TOKEN = "AUTH_TOKEN";
-    public static int LOG_IN_SELECTED = 0;
-    public static int SIGN_UP_SELECTED = 0;
+    public static boolean LOG_IN_SELECTED = false;
+    public static boolean SIGN_UP_SELECTED = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+//        if (ParseUser.getCurrentUser() != null) {
+//            Log.e(TAG, "huih");
+//        }
+
         setContentView(R.layout.activity_login);
-        Button buttonLogin = findViewById(R.id.buttonLogin);
-        Button buttonSignUp = findViewById(R.id.buttonSignUp);
-        buttonLogin.setBackgroundColor(getResources().getColor(R.color.teal_700));
-        buttonLogin.setTextColor(getResources().getColor(R.color.black));
+        Button buttonLogin = findViewById(R.id.btnLogin);
+        Button buttonSignUp = findViewById(R.id.btnSignUp);
+        buttonLogin.setBackgroundColor(getResources().getColor(R.color.brightBlue));
+        buttonLogin.setTextColor(getResources().getColor(R.color.white));
         buttonLogin.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 openLoginWindow();
-                LOG_IN_SELECTED = 1;
+                LOG_IN_SELECTED = true;
             }
         });
+        buttonSignUp.setBackgroundColor(getResources().getColor(R.color.pink));
         buttonSignUp.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 openLoginWindow();
-                SIGN_UP_SELECTED = 1;
+                SIGN_UP_SELECTED = true;
             }
         });
     }
@@ -80,9 +87,9 @@ public class LoginActivity extends AppCompatActivity {
             switch (response.getType()) {
                 case TOKEN:
                     Log.e(TAG, "Auth Token is: " + response.getAccessToken());
-                    intent = new Intent(LoginActivity.this, MainActivity.class);
-                    intent.putExtra(AUTH_TOKEN, response.getAccessToken());
-                    startActivity(intent);
+                    Intent intent1 = new Intent(LoginActivity.this, MainActivity.class);
+                    intent1.putExtra(AUTH_TOKEN, response.getAccessToken());
+                    startActivity(intent1);
                     finish();
                     break;
                 case ERROR:

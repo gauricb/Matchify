@@ -1,9 +1,11 @@
 package com.example.matchify.adapters;
 
+import static com.example.matchify.MainActivity.mSpotifyAppRemote;
 import static com.example.matchify.models.Message.IncomingMessageSongWidget;
 import static com.example.matchify.models.Message.MessageIncoming;
 import static com.example.matchify.models.Message.MessageOutgoing;
 import static com.example.matchify.models.Message.OutgoingMessageSongWidget;
+import static com.example.matchify.MainActivity.currentSpotifyUser;
 
 import android.content.Context;
 import android.util.Log;
@@ -25,9 +27,13 @@ import com.example.matchify.models.Message;
 import com.example.matchify.models.Song;
 import com.example.matchify.models.SpotifyUser;
 import com.parse.ParseException;
+import com.parse.ParseUser;
 import com.parse.SaveCallback;
 import com.spotify.android.appremote.api.SpotifyAppRemote;
 
+import org.json.JSONArray;
+
+import java.util.Arrays;
 import java.util.List;
 
 public class CopyChatAdapter extends RecyclerView.Adapter{
@@ -36,8 +42,6 @@ public class CopyChatAdapter extends RecyclerView.Adapter{
     private Context mContext;
     private SpotifyUser sender;
     public static final String TAG = "CopyChatAdapter";
-    private String username = "";
-
 
     SpotifyAppRemote mSpotifyAppRemote;
 
@@ -57,18 +61,14 @@ public class CopyChatAdapter extends RecyclerView.Adapter{
         }
         else if(message.getBody() == null  && !message.getSender().getObjectId().equals(sender.getObjectId())) {
             return IncomingMessageSongWidget;
-
         }
         else if (message.getBody() != null && message.getSender().getObjectId().equals(sender.getObjectId())){
-            Log.e(TAG, "current user: " +sender.getUserName());
             return MessageOutgoing;
         }
         else  {
             boolean cond = message.getBody() != null && message.getSender().getObjectId() == sender.getObjectId();
-            Log.e(TAG, "!" + message.getSender().getObjectId() + "==" + sender.getObjectId() + "so " + cond );
             return MessageIncoming;
         }
-
     }
 
     public class IncomingMessageViewHolder extends RecyclerView.ViewHolder {
@@ -86,9 +86,9 @@ public class CopyChatAdapter extends RecyclerView.Adapter{
             try {
                 Glide.with(mContext)
                         .load(message.getSender().fetchIfNeeded().getString("profileImage"))
-                        .circleCrop() // create an effect of a round profile picture
+                        .circleCrop()
                         .into(imageOther);
-                name.setText(message.getSender().fetchIfNeeded().getString("username")); // in addition to message show user ID
+                name.setText(message.getSender().fetchIfNeeded().getString("username"));
 
             } catch (ParseException e) {
                 Log.v("LOG_TAG", e.toString());
@@ -129,19 +129,19 @@ public class CopyChatAdapter extends RecyclerView.Adapter{
         private TextView artistName;
         private ImageView albumCover;
         private ImageButton addButton;
-        ImageView imageOther;
+        private ImageButton playButton;
+        private boolean paused = true;
 
-        // button - add to like songs, only visible if you're not user who sent it
-        // open song on spotify
-        // if this song is not in your liked songs then add it
+
 
         public IncomingMessageSongWidgetViewHolder(@NonNull View itemView) {
             super(itemView);
             trackName = itemView.findViewById(R.id.likedTrackName);
             artistName = itemView.findViewById(R.id.outgoingMessage);
             albumCover = itemView.findViewById(R.id.likedAlbumCover);
-            addButton = itemView.findViewById(R.id.buttonAdd);
-            imageOther = itemView.findViewById(R.id.ivProfileMe);
+            addButton = itemView.findViewById(R.id.messageAdd);
+            playButton = itemView.findViewById(R.id.messagePlay2);
+
 
         }
         public void bind(Message song)  {
@@ -150,10 +150,7 @@ public class CopyChatAdapter extends RecyclerView.Adapter{
                 trackName.setText(song.getSongWidget().fetchIfNeeded().getString("songName"));
                 artistName.setText(song.getSongWidget().fetchIfNeeded().getString("artistName"));
                 Glide.with(mContext).load(song.getSongWidget().fetchIfNeeded().getString("albumCover")).into(albumCover);
-                Glide.with(mContext)
-                        .load(song.getSender().fetchIfNeeded().getString("profileImage"))
-                        .circleCrop() // create an effect of a round profile picture
-                        .into(imageOther);
+
 
             } catch (ParseException e) {
                 Log.v("LOG_TAG", e.toString());
@@ -163,40 +160,60 @@ public class CopyChatAdapter extends RecyclerView.Adapter{
             addButton.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    Toast.makeText(mContext, "Song added to your playlist!" + song.getMSongName(),
-                            Toast.LENGTH_SHORT).show();
-                    SpotifyUser match = song.getReceiver();
+
+
                     Song newLikedSongForMatch = new Song();
                     try {
+
                         newLikedSongForMatch.setSongName(song.getSongWidget().fetchIfNeeded().getString("songName"));
                         newLikedSongForMatch.setArtistName(song.getSongWidget().fetchIfNeeded().getString("artistName"));
                         newLikedSongForMatch.setAlbumCover(song.getSongWidget().fetchIfNeeded().getString("albumCover"));
                         newLikedSongForMatch.setSongLink(song.getSongWidget().fetchIfNeeded().getString("link"));
                         newLikedSongForMatch.setSongUri(song.getSongWidget().fetchIfNeeded().getString("uri"));
-                        newLikedSongForMatch.setSongUser(match.fetchIfNeeded().getParseUser("songUser"));
+                        newLikedSongForMatch.setSongUser(ParseUser.getCurrentUser());
                     } catch (ParseException e) {
                         e.printStackTrace();
                     }
-                    // TODO check if this particular song exists in a user's liked song playlist already!
+
+                    JSONArray myLikedSongs = currentSpotifyUser.getLikedSongs();
+                    Log.e(TAG, " " + myLikedSongs);
+                    try {
+                        if (Arrays.asList(myLikedSongs).contains(song.getSongWidget().fetchIfNeeded().getString("songName"))) {
+                            Toast.makeText(mContext, "Song already exists in your playlist!",
+                                    Toast.LENGTH_SHORT).show();
+                        }
+                    } catch (ParseException e) {
+                        e.printStackTrace();
+                    }
 
                     newLikedSongForMatch.saveInBackground(new SaveCallback() {
                             @Override
                             public void done(ParseException e) {
-                                Log.d("liked song saved! ", "mememe");
+                                Toast.makeText(mContext, "Song added!!",
+                                        Toast.LENGTH_SHORT).show();
                             }
                         });
                     addButton.setImageResource(R.drawable.ic_baseline_playlist_add_check_24);
+
                 }
             });
 
-
-            itemView.setOnClickListener(new DoubleClick() {
+            playButton.setOnClickListener(new View.OnClickListener() {
                 @Override
-                public void onDoubleClick() {
-                    Toast.makeText(mContext, "Playing song!" + song.getMSongName(),
-                            Toast.LENGTH_SHORT).show();
+                public void onClick(View v) {
+
                     try {
-                        mSpotifyAppRemote.getPlayerApi().play(song.getSongWidget().fetchIfNeeded().getString("uri"));
+                        int position = getLayoutPosition();
+                        if (paused) {
+                            playButton.setImageResource(R.drawable.ic_baseline_pause_24);
+                            mSpotifyAppRemote.getPlayerApi().play(song.getSongWidget().fetchIfNeeded().getString("uri"));
+                            paused = false;
+                        }
+                        else {
+                            playButton.setImageResource(R.drawable.ic_baseline_play_arrow_24);
+                            mSpotifyAppRemote.getPlayerApi().pause();
+                            paused = true;
+                        }
                     }
                     catch (ParseException e) {
                         e.printStackTrace();
@@ -217,18 +234,14 @@ public class CopyChatAdapter extends RecyclerView.Adapter{
         private TextView artistName;
         private ImageView albumCover;
         private ImageButton playButton;
-        ImageView imageMe;
-
-        // button - add to like songs, only visible if you're not user who sent it
-        // open song on spotify
-        // if this song is not in your liked songs then add it
+        private boolean paused = true;
 
         public OutgoingMessageSongWidgetViewHolder(@NonNull View itemView) {
             super(itemView);
             trackName = itemView.findViewById(R.id.likedTrackName);
             artistName = itemView.findViewById(R.id.outgoingMessage);
             albumCover = itemView.findViewById(R.id.likedAlbumCover);
-            imageMe = itemView.findViewById(R.id.ivProfileMe);
+            playButton = itemView.findViewById(R.id.messagePlay);
 
         }
         public void bind(Message song)  {
@@ -237,23 +250,26 @@ public class CopyChatAdapter extends RecyclerView.Adapter{
                 trackName.setText(song.getSongWidget().fetchIfNeeded().getString("songName"));
                 artistName.setText(song.getSongWidget().fetchIfNeeded().getString("artistName"));
                 Glide.with(mContext).load(song.getSongWidget().fetchIfNeeded().getString("albumCover")).into(albumCover);
-                Glide.with(mContext)
-                        .load(song.getSender().fetchIfNeeded().getString("profileImage"))
-                        .circleCrop() // create an effect of a round profile picture
-                        .into(imageMe);
-
             } catch (ParseException e) {
                 Log.v("LOG_TAG", e.toString());
                 e.printStackTrace();
             }
 
-            itemView.setOnClickListener(new DoubleClick() {
+            playButton.setOnClickListener(new View.OnClickListener() {
                 @Override
-                public void onDoubleClick() {
-                    Toast.makeText(mContext, "Playing song!" + song.getMSongName(),
-                            Toast.LENGTH_SHORT).show();
+                public void onClick(View v) {
                     try {
-                        mSpotifyAppRemote.getPlayerApi().play(song.getSongWidget().fetchIfNeeded().getString("uri"));
+                        int position = getLayoutPosition();
+                        if (paused) {
+                            playButton.setImageResource(R.drawable.ic_baseline_pause_24);
+                            mSpotifyAppRemote.getPlayerApi().play(song.getSongWidget().fetchIfNeeded().getString("uri"));
+                            paused = false;
+                        }
+                        else {
+                            playButton.setImageResource(R.drawable.ic_baseline_play_arrow_24);
+                            mSpotifyAppRemote.getPlayerApi().pause();
+                            paused = true;
+                        }
                     }
                     catch (ParseException e) {
                         e.printStackTrace();
@@ -261,16 +277,14 @@ public class CopyChatAdapter extends RecyclerView.Adapter{
                 }
             });
 
+
         }
 
         @Override
         public void onClick(View v) {
-            Toast.makeText(mContext, "song widget clicked",
-                    Toast.LENGTH_SHORT).show();
+
         }
     }
-
-
 
 
     @NonNull
@@ -303,14 +317,11 @@ public class CopyChatAdapter extends RecyclerView.Adapter{
         }
         else if(message.getBody() == null  && !message.getSender().getObjectId().equals(sender.getObjectId())) {
             ((IncomingMessageSongWidgetViewHolder)holder).bind(messages.get(position));
-
         }
         else if (message.getBody() != null && message.getSender().getObjectId().equals(sender.getObjectId())){
-
             ((OutgoingMessageViewHolder)holder).bindMessage(messages.get(position));
         }
         else  {
-
             ((IncomingMessageViewHolder)holder).bindMessage(messages.get(position));
         }
 

@@ -1,27 +1,37 @@
 package com.example.matchify.fragments;
 
 import android.content.Intent;
+import android.graphics.Canvas;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.matchify.ChatActivity;
 import com.example.matchify.adapters.ChatSongAdapter;
 import com.example.matchify.adapters.MatchAdapter;
 import com.example.matchify.R;
 import com.example.matchify.models.Match;
+import com.example.matchify.models.Song;
 import com.example.matchify.models.SpotifyUser;
+import com.parse.DeleteCallback;
 import com.parse.FindCallback;
 import com.parse.ParseException;
 import com.parse.ParseQuery;
 import com.parse.ParseUser;
+import com.parse.SaveCallback;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -30,6 +40,8 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+
+import it.xabaras.android.recyclerview.swipedecorator.RecyclerViewSwipeDecorator;
 
 public class MatchesFragment extends Fragment {
 
@@ -43,7 +55,18 @@ public class MatchesFragment extends Fragment {
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+        setHasOptionsMenu(true);
         return inflater.inflate(R.layout.fragment_match, container, false);
+    }
+
+    @Override
+    public void onPrepareOptionsMenu(@NonNull Menu menu) {
+        super.onPrepareOptionsMenu(menu);
+
+        MenuItem item2 = menu.findItem(R.id.buttonGenres);
+        if (item2 != null) {
+            item2.setVisible(false);
+        }
     }
 
     @Override
@@ -56,9 +79,11 @@ public class MatchesFragment extends Fragment {
         rvMatches.setLayoutManager(new LinearLayoutManager(getContext()));
         rvMatches.setAdapter(adapter);
 
+
         generateMatch();
 
     }
+
 
     public void generateMatch() {
         //pull all your matches from the Match class on Parse
@@ -77,22 +102,25 @@ public class MatchesFragment extends Fragment {
                 JSONArray myLikedSongs = new JSONArray();
 
                 ParseQuery<SpotifyUser> query = ParseQuery.getQuery("SpotifyUser");
-                List<SpotifyUser> obj = new ArrayList<>();
-                List<SpotifyUser> obj2 = new ArrayList<>();
+                List<SpotifyUser> me = new ArrayList<>();
+                List<SpotifyUser> match = new ArrayList<>();
 
-                try {
-                    query.whereEqualTo("songUser", ParseUser.getCurrentUser());
-                    obj = query.find(); //the current user object size should be 1
-                    myFavoriteArtists = obj.get(0).getTopArtists();
-                    myFavoriteTracks = obj.get(0).getTopTracks();
-                    myLikedSongs = obj.get(0).getLikedSongs();
-                } catch (ParseException ex) {
-                    ex.printStackTrace();
+                if (ParseUser.getCurrentUser() != null) {
+                    try {
+                        query.whereEqualTo("songUser", ParseUser.getCurrentUser());
+                        me = query.find(); //the current user object size should be 1
+                        myFavoriteArtists = me.get(0).getTopArtists();
+                        myFavoriteTracks = me.get(0).getTopTracks();
+                        myLikedSongs = me.get(0).getLikedSongs();
+                    } catch (ParseException ex) {
+                        ex.printStackTrace();
+                    }
                 }
+
 
                 query.whereNotEqualTo("songUser", ParseUser.getCurrentUser());
                 try {
-                    obj2 = query.find(); //has all the objects that are not the current user (potential matches)
+                    match = query.find(); //has all the objects that are not the current user (potential matches)
 
                 } catch (ParseException ex) {
                     ex.printStackTrace();
@@ -101,7 +129,7 @@ public class MatchesFragment extends Fragment {
 
 
                 double compatibilityScore = 0.0;
-
+                double distance = 0.0;
                 double likedSongScore = 0.0;
                 double artistScore = 0.0;
                 double trackScore = 0.0;
@@ -109,28 +137,53 @@ public class MatchesFragment extends Fragment {
                 double locationScore = 0.0;
 
 
-                for (int i = 0; i < obj2.size(); i++) {
+                for (int i = 0; i < match.size(); i++) {
 
                     try {
-                        likedSongScore = getScore(myLikedSongs, obj2.get(i).getLikedSongs());
-                        artistScore = getScore(myFavoriteArtists, obj2.get(i).getTopArtists());
-                        trackScore = getScore(myFavoriteTracks, obj2.get(i).getTopTracks());
-                        locationScore = getDistanceScore(obj.get(0), obj2.get(i), obj.get(0).getUserLocationRange()) ;
-                        ageScore = getAgeScore(obj2.get(i).getUserAge(), obj.get(0).getUserAgeRange());
+                        if (myFavoriteArtists.length() != 0 && myLikedSongs.length() != 0 && myFavoriteTracks.length() != 0) {
+                            likedSongScore = getScore(myLikedSongs, match.get(i).getLikedSongs());
+                            artistScore = getScore(myFavoriteArtists, match.get(i).getTopArtists());
+                            trackScore = getScore(myFavoriteTracks, match.get(i).getTopTracks());
+                        }
+
+                        locationScore = getDistanceScore(me.get(0), match.get(i), me.get(0).getUserLocationRange()) ;
+                        ageScore = getAgeScore(match.get(i).getUserAge(), me.get(0).getUserAgeRange());
 
 
                     } catch (JSONException ex) {
                         ex.printStackTrace();
                     }
-                    compatibilityScore = (likedSongScore * 0.1 + artistScore * 0.2 + trackScore * 0.1 + 0.2 * locationScore + ageScore * 0.2);
+                    //compatibilityScore = (likedSongScore * 0.3 + artistScore * 0.3 + trackScore * 0.2 + locationScore * 0.2 + ageScore * 0.2);
+                    distance = getDistance(me.get(0), match.get(i));
                     // send compatibility percent to adapter
-                    Intent intent1 = new Intent(getContext(), MatchAdapter.class);
-                    intent1.putExtra("compat", Double.toString(compatibilityScore));
+                    compatibilityScore = (likedSongScore * 3 + artistScore * 0.3 + trackScore * 0.2 + locationScore * 0.2 + ageScore * 0.2);
 
-                    Log.e(TAG, "##########" + compatibilityScore);
-                    if (compatibilityScore < 50) {
-                        matches.add(obj2.get(i));
+                    // string array to store matches on Parse
+                    String[] myMatches = new String[match.size()];
+
+                    //match.get(i).setMatchCompat(Double.toString(compatibilityScore));
+                    match.get(i).setMatchDistance(Double.toString(Math.round(distance)));
+
+                    match.get(i).saveInBackground(new SaveCallback() {
+                        @Override
+                        public void done(ParseException e) {
+
+                        }
+                    });
+                    me.get(0).setUserMatches(myMatches);
+                    me.get(0).saveInBackground(new SaveCallback() {
+                        @Override
+                        public void done(ParseException e) {
+                            Log.d("match saved to parse! ", "******");
+                        }
+                    });
+
+                    if (compatibilityScore < 75) {
+                        matches.add(match.get(i));
+                        myMatches[i] = match.get(i).getUserName();
+
                     }
+
                 }
 
                 adapter.notifyDataSetChanged();
@@ -178,10 +231,14 @@ public class MatchesFragment extends Fragment {
 
         return 0.0;
     }
+    public double getDistance(SpotifyUser me, SpotifyUser anotherUser) {
+        return me.getUserLocation().distanceInMilesTo(anotherUser.getUserLocation());
+    }
 
     public double getDistanceScore(SpotifyUser me, SpotifyUser anotherUser, int locationRange) {
 
         double distance =  me.getUserLocation().distanceInMilesTo(anotherUser.getUserLocation());
+        Log.e(TAG, "!@#$%%^&" + distance);
         if (distance < locationRange) {
             return 1.0 * 100;
         }
