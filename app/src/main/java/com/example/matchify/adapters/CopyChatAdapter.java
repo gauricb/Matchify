@@ -59,14 +59,13 @@ public class CopyChatAdapter extends RecyclerView.Adapter{
         if (message.getBody() == null  && message.getSender().getObjectId().equals(sender.getObjectId())) {
             return OutgoingMessageSongWidget;
         }
-        else if(message.getBody() == null  && !message.getSender().getObjectId().equals(sender.getObjectId())) {
+        else if (message.getBody() == null  && !message.getSender().getObjectId().equals(sender.getObjectId())) {
             return IncomingMessageSongWidget;
         }
         else if (message.getBody() != null && message.getSender().getObjectId().equals(sender.getObjectId())){
             return MessageOutgoing;
         }
         else  {
-            boolean cond = message.getBody() != null && message.getSender().getObjectId() == sender.getObjectId();
             return MessageIncoming;
         }
     }
@@ -132,8 +131,6 @@ public class CopyChatAdapter extends RecyclerView.Adapter{
         private ImageButton playButton;
         private boolean paused = true;
 
-
-
         public IncomingMessageSongWidgetViewHolder(@NonNull View itemView) {
             super(itemView);
             trackName = itemView.findViewById(R.id.likedTrackName);
@@ -141,8 +138,6 @@ public class CopyChatAdapter extends RecyclerView.Adapter{
             albumCover = itemView.findViewById(R.id.likedAlbumCover);
             addButton = itemView.findViewById(R.id.messageAdd);
             playButton = itemView.findViewById(R.id.messagePlay2);
-
-
         }
         public void bind(Message song)  {
 
