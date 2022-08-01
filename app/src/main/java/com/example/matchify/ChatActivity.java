@@ -209,17 +209,18 @@ public class ChatActivity extends AppCompatActivity {
         final SpotifyUser spotifySender = getCurrentSpotifyUser().get(0);
         matchObject = getIntent().getParcelableExtra("MatchObject");
         final SpotifyUser spotifyReceiver = matchObject;
+
         // Construct query to execute
         ParseQuery<Message> query = ParseQuery.getQuery(Message.class);
-        // Configure limit and sort order
+
         query.setLimit(MAX_CHAT_MESSAGES_TO_SHOW);
 
-        // get the latest 50 messages, order will show up newest to oldest of this group
         query.orderByDescending("createdAt");
-        // TODO QUERY ONLY SENDER AND RECEIVER'S MESSAGES
-//        query.whereEqualTo("spotifyUserSender", spotifySender);
-//        query.whereEqualTo("spotifyUserReceiver", spotifyReceiver);
-//        query.whereEqualTo()
+
+        query.whereEqualTo("spotifyUserSender", spotifySender);
+        query.whereEqualTo("spotifyUserReceiver", spotifyReceiver);
+        query.whereEqualTo("spotifyUserSender", spotifyReceiver);
+        query.whereEqualTo("spotifyUserReceiver", spotifySender);
 
         // Execute query to fetch all messages from Parse asynchronously
         // This is equivalent to a SELECT query with SQL
