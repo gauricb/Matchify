@@ -58,9 +58,9 @@ This app allows users to find potential friends and partners based on their musi
    * go to the person's profile when selected (which is separate screen)
 
 ## Wireframes
-[matchify wireframe (1).pdf](https://github.com/gauricb/Matchify/files/8986037/matchify.wireframe.1.pdf) (Digital)
+[matchify wireframe.pdf](https://github.com/gauricb/Matchify/files/8986037/matchify.wireframe.1.pdf) (Digital)
 
-[Wireframes  (2).pdf](https://github.com/gauricb/Matchify/files/8986046/Wireframes.2.pdf) (Hand drawn)
+[Wireframes.pdf](https://github.com/gauricb/Matchify/files/8986046/Wireframes.2.pdf) (Hand drawn)
 
 ### APIs to be used:
 * Spotfy
